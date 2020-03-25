@@ -1,4 +1,0 @@
-# Optimal-strategy-for-roulette
-
-
-
