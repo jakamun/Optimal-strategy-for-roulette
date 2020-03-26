@@ -10,7 +10,9 @@ V i-ti igri imamo za stavo 1 evra na k-to število možnost izplačila <img src=
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=C_n&space;=&space;C_{n-1}(\gamma_{n0}&space;&plus;&space;\sum_{j=1}^K\gamma_{nj}(M_k&plus;1)X_{nj})=C_0\prod_{i=1}^n(\gamma_{i0}&space;&plus;&space;\sum_{j=1}^K\gamma_{ij}(M_k&plus;1)X_{ij})" target="_blank"><img src="https://latex.codecogs.com/gif.latex?C_n&space;=&space;C_{n-1}(\gamma_{n0}&space;&plus;&space;\sum_{j=1}^K\gamma_{nj}(M_k&plus;1)X_{nj})=C_0\prod_{i=1}^n(\gamma_{i0}&space;&plus;&space;\sum_{j=1}^K\gamma_{ij}(M_k&plus;1)X_{ij})" title="C_n = C_{n-1}(\gamma_{n0} + \sum_{j=1}^K\gamma_{nj}(M_k+1)X_{nj})=C_0\prod_{i=1}^n(\gamma_{i0} + \sum_{j=1}^K\gamma_{ij}(M_k+1)X_{ij})" /></a>
 
+V projektu obravnavamo primer, ko poznamo verjetnsoti in primer, ko ne poznamo verjetnosti. Obe strategiji bomo podrobneje obravnavali in implementirali v R-u tako, da bo lahko uporabnik pri simulirani igri rulete testiral strategiji.
+
 ### Optimalna strategija za znane verjetnosti
 
-
+Za znano verjetnost je strategija v vsaki igri enaka. Torej v vsaki igri stavimo isti delež denarja na iste številke.
 
