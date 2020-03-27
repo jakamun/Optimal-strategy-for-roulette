@@ -14,5 +14,5 @@ V projektu obravnavamo primer, ko poznamo verjetnsoti in primer, ko ne poznamo v
 
 ### Optimalna strategija za znane verjetnosti
 
-Za znano verjetnost je strategija v vsaki igri enaka. Torej v vsaki igri stavimo isti delež denarja na iste številke.
+Za znano verjetnost je strategija v vsaki igri enaka oz. v vsaki igri stavimo isti delež denarja, ki ga imamo na razpolago, na iste številke. 
 
