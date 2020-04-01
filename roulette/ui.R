@@ -1,5 +1,6 @@
 library(shiny)
 library(shinythemes)
+library(lubridate)
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(theme = shinytheme("slate"),
@@ -8,6 +9,10 @@ shinyUI(fluidPage(theme = shinytheme("slate"),
   titlePanel("Optimal roulette strategy!"),
   
   fluidRow(
+    column(12,
+           actionButton('start','Start'),
+           actionButton('stop','Stop'),
+           textOutput('timeleft')),
     column(6, 
            wellPanel(
              h3("Podajte stavo"),
@@ -27,10 +32,9 @@ shinyUI(fluidPage(theme = shinytheme("slate"),
              textOutput("sta"))),
     column(12, 
            wellPanel(
-             actionButton("roll", "Roll the whell!")
-           )),
-    column(12, 
-           textOutput("num"))
+             actionButton("roll", "Roll the whell!"), 
+             textOutput("num")
+           ))
   )
   
   )
