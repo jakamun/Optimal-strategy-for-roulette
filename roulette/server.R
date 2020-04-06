@@ -5,6 +5,20 @@ library(prob)
 
 shinyServer(function(input, output, session) {
   
+  money <- reactiveValues(value=0)
+  
+  observeEvent(input$insert,{money$cur <- input$currency})
+  
+  observeEvent(input$insert, {money$value <- money$value + as.numeric(input$value)})
+ #treba naredit tako, da se bo kolicina denarja ves čas sproti posodabljala 
+#  output$denar <- 
+  
+  # trenutno imam tako, da vstavis denar skoz isto valuto, treba nardit tako, da bo skoz ista valuta in se pretvarja skoz v to enoto
+  output$money <- eventReactive(input$insert, paste("You inserted ", input$value, ". Now you have ", money$value))
+  
+  output$start <- eventReactive(input$apply, # treba še za load file naredit funkcijo, ki preveri, kaj je uporabnik vnesu in uvozi te podatke 
+                                paste("You are going to continue with ", typeof(input$load)))
+  
   timer <- reactiveVal(10)
   active <- reactiveVal(FALSE)
   

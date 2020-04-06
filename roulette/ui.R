@@ -8,9 +8,32 @@ shinyUI(fluidPage(theme = shinytheme("slate"),
   # Application title
   titlePanel("Optimal roulette strategy!"),
   
+  sidebarLayout(
+ #   titlePanel("Chose between options below"),
+    sidebarPanel(
+      fileInput("load", "Continue with previous game"),
+      actionButton("apply", "Apply")
+    ),
+    mainPanel(
+      textOutput("start")
+    )
+  ),
+ sidebarLayout(
+   sidebarPanel(
+     radioButtons("currency", "Choose a currency", choices = list("Euro", "Dollar")),
+     textInput("value", "How much money do you want to put in?"),
+     actionButton("insert", "Insert")
+   ),
+   mainPanel(
+     textOutput("money")
+   )
+ ),
+ 
+# denar <-  
+ 
   fluidRow(
     column(1,
-           wellPanel(numericInput("bet3", "Bet on number 3", value = 0, min=0, max=100),
+           wellPanel(sliderInput("bet3", "Number 3", value = 0, min=0, max=10000),
                      style="background: firebrick")),
     column(1, 
            wellPanel(numericInput("bet6", "Bet on number 6", value = 0, min=0, max=100),
@@ -117,38 +140,22 @@ shinyUI(fluidPage(theme = shinytheme("slate"),
     column(1, 
            wellPanel(numericInput("bet34", "Bet on number 34", value = 0, min=0, max=100),
                      style="background: firebrick")),
-    column(4, 
-           wellPanel(numericInput("bet1st12", "Bet on 1st 12", value = 0, min=0, max=100))),
-    column(4, 
-           wellPanel(numericInput("bet2nd12", "Bet on 2nd 12", value = 0, min=0, max=100))),
-    column(4, 
-           wellPanel(numericInput("bet3rd12", "Bet on 3rd 12", value = 0, min=0, max=100))),
-    column(3, 
-           wellPanel(numericInput("bet1stRow", "Bet on 1st row", value = 0, min=0, max=100))),
-    column(3, 
-           wellPanel(numericInput("bet2ndRow", "Bet on 2nd row", value = 0, min=0, max=100))),
-    column(3, 
-           wellPanel(numericInput("bet3rdRow", "Bet on 3rd row", value = 0, min=0, max=100))),
-    column(2, 
-           wellPanel(numericInput("bet00", "Bet on 00", value = 0, min=0, max=100),
-                     style="background: green")),
-    column(1, 
-           wellPanel(numericInput("bet0", "Bet on 0", value = 0, min=0, max=100),
-                     style="background: green")),
-    column(2, 
-           wellPanel(numericInput("bet1to18", "Bet on 1-18", value = 0, min=0, max=100))),
     column(2, 
            wellPanel(numericInput("betEven", "Bet on even", value = 0, min=0, max=100))),
     column(2, 
            wellPanel(numericInput("betRed", "Bet on red", value = 0, min=0, max=100),
                      style="background: firebrick")),
     column(2, 
+           wellPanel(numericInput("bet00", "Bet on 00", value = 0, min=0, max=100),
+                     style="background: green")),
+    column(2, 
+           wellPanel(numericInput("bet0", "Bet on 0", value = 0, min=0, max=100),
+                     style="background: green")),
+    column(2, 
            wellPanel(numericInput("betBlack", "Bet on black", value = 0, min=0, max=100),
                      style="background: black")),
     column(2, 
-           wellPanel(numericInput("betOdd", "Bet on odd", value = 0, min=0, max=100))),
-    column(2, 
-           wellPanel(numericInput("bet19to36", "Bet on 19-36", value = 0, min=0, max=100)))
+           wellPanel(numericInput("betOdd", "Bet on odd", value = 0, min=0, max=100)))
   ),
   hr(),
   fluidRow(
