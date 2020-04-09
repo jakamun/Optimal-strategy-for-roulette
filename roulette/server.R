@@ -5,13 +5,26 @@ library(prob)
 
 shinyServer(function(input, output, session) {
   
-  money <- reactiveValues(value=10) # hisa da zacetnih 10 kreditov
+  money <- reactiveValues(value = 10) # hisa da zacetnih 10 kreditov
+  
+  stave <- reactiveValues(table = data.frame(onWhat = character(), amount = numeric(), stringsAsFactors=FALSE))
+  
+  rolled <- reactiveValues(number = NULL, color = NULL)
+  
+  observeEvent(input$bet, {
+    stava <- c(input$betOnWhat, input$amount)
+    stave$table[nrow(stave$table) + 1, ] <- stava
+  })
+  
+  observeEvent(input$clear, {
+    stave$table <- stave$table[0,]
+  })
+  
+  output$bets <- renderTable(stave$table)
   
   observeEvent(input$insert,{money$cur <- input$currency})
   
   observeEvent(input$insert, {money$value <- money$value + as.numeric(input$value)})
- #treba naredit tako, da se bo kolicina denarja ves čas sproti posodabljala 
-#  output$denar <- 
   
   # trenutno imam tako, da vstavis denar skoz isto valuto, treba nardit tako, da bo skoz ista valuta in se pretvarja skoz v to enoto
   output$money <- eventReactive(input$insert, paste("You inserted ", input$value, ". Now you have ", money$value))
@@ -48,18 +61,30 @@ shinyServer(function(input, output, session) {
                                 paste("You are going to continue with ", typeof(input$load)))
   
   rollnumber <- function() {
-    # 38 stevilk ima nasa ruleta, dve nicli in od 1 do 36
-    ruleta <- c("00", "0", c(1:36))
-    #ruleta <- roulette()
-    rand <- round(runif(1) * 38, 0)
-    return(ruleta[rand])
+    ruleta <- roulette() 
+    #rand <- round(runif(1) * 38, 0) #postena ruleta
+    rand <- rbinom(1, 38, 3/4)
+    return(ruleta[rand,])
   }
   
-  output$sta <- eventReactive(input$stava, 
-                              paste("You betted ", input$bet, " on ", input$number, "."))
+  dobitek <- function(bets, rol_num, rol_col) {
+    skupaj <- paste(rol_num, rol_col)
+    match <- stave$table[stave$table == skupaj, 2]
+    if (length(match) == 1) {
+      return(as.numeric(match) * 36)
+    }
+    else {
+      return(0)
+    }
+  }
+  
+  observeEvent(input$spin, {
+    rolled$number <- rollnumber()$num
+    rolled$color <- rollnumber()$color
+  })
   
   output$num <- eventReactive(input$spin, 
-                              paste("Rolled number is ", rollnumber()))
+                              paste(dobitek(stave(), rolled$number, rolled$color)))
                              # dobitek(input$bet, input$number, rollnumber()))
   
   timer <- reactiveVal(10)
@@ -94,15 +119,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$stop, {active(FALSE)})
   
   
-  dobitek <- function(bet, sta_num, rol_num) {
-    if (sta_num == rol_num) {
-      winning <- bet * (35 + 1)
-      return(sprintf("You win %.0f dollars.", winning))
-    }
-    else {
-      return(sprintf("You lose %.0f dollars.", bet))
-    }
-  }
+  
   
   
 })
