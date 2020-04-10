@@ -31,7 +31,7 @@ shinyUI(fluidPage(theme = shinytheme("slate"),
   sidebarLayout(
     sidebarPanel(
       textOutput("status", inline = TRUE),
-      selectInput("segment", "On what will you bet?", choices = c("Numbers", "Color", "Odd or even")),
+      selectInput("segment", "On what will you bet?", choices = c("Number", "Color", "Odd or even")),
       uiOutput("buttons"),
       uiOutput("slider"),
       actionButton("clear", "Clear all bets"),
@@ -44,8 +44,8 @@ shinyUI(fluidPage(theme = shinytheme("slate"),
   ),
  verticalLayout(
    wellPanel(
-     textOutput("num"),
-     textOutput("test")
+     textOutput("roll"),
+     textOutput("num")
    )
  )
 #  fluidRow(
