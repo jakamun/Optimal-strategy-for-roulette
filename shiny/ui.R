@@ -1,6 +1,4 @@
-library(shiny)
-library(shinythemes)
-library(lubridate)
+
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(theme = shinytheme("slate"),
