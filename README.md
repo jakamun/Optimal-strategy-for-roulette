@@ -57,4 +57,19 @@ V projektu obravnavamo primer, ko poznamo verjetnsoti in primer, ko ne poznamo v
 
 ### Optimalna strategija za znane verjetnosti
 
-Če poznamo verjetnosti potem igramo ves čas z enako strategijo, torej na posamezne številke stavimo enake deleže denarja, saj se nam tekom igre ne razkrivajo nove informacije o verjetnostih in zato ne rabimo spreminjati strategije. Za izračun optimalne strategije 
+Če poznamo verjetnosti potem igramo ves čas z enako strategijo, torej na posamezne številke stavimo v vsaki igri enake deleže denarja, saj se nam tekom igre ne razkrivajo nove informacije o verjetnostih in zato ne rabimo spreminjati strategije. [Kelley](https://www.princeton.edu/~wbialek/rome/refs/kelly_56.pdf) je ugotovil, da dobimo z maksimizacijo logaritma dobitka optimalnejšo strategijo. Zato maksimiziramo pričakovano vrednost logaritma dobitka po eni igri. Dobitek po eni igri bi lahko zapisali kot <img src="https://render.githubusercontent.com/render/math?math=C_1">, vendar raje zapišemo dobitek po eni igri kot:
+
+<p align="center">
+  <a href="https://www.codecogs.com/eqnedit.php?latex=\prod_{k=1}^K(\gamma_0&plus;(M_k&plus;1)\gamma_k)^{X_k}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\prod_{k=1}^K(\gamma_0&plus;(M_k&plus;1)\gamma_k)^{X_k}" title="\prod_{k=1}^K(\gamma_0+(M_k+1)\gamma_k)^{X_k}" /></a>
+</p>
+
+Sedaj je upanje dobitka veliko lažeje izračunati in dobimo:
+
+<p align="center">
+<a href="https://www.codecogs.com/eqnedit.php?latex=\sum_{k=1}^Kp_kln(\gamma_0&plus;(M_k&plus;1)\gamma_k)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sum_{k=1}^Kp_kln(\gamma_0&plus;(M_k&plus;1)\gamma_k)" title="\sum_{k=1}^Kp_kln(\gamma_0+(M_k+1)\gamma_k)" /></a>
+</p>
+
+Imamo še dva pogoja <img src="https://render.githubusercontent.com/render/math?math=\gamma_k\geq"> za k=0,1,...,K in <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=0}^K\gamma_k=1">. Z maksimizacijo dobimo spodnjo strategijo:
+
+
+
