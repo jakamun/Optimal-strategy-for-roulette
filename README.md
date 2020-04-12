@@ -120,4 +120,24 @@ V tem primeru je r=4, saj pri k=5 ne velja 18/38 > 9/19 vendar velja enakost in 
 
 ### Nepoznane verjetnosti
 
+Seveda v realnem svetu ni za pričakovati, da bomo poznali verjetnosti. Zato poiščimo optimalno strategijo za n iger <img src="https://render.githubusercontent.com/render/math?math=\gamma[n]=(\gamma_{1},\dots ,\gamma_{n})^{(K %2B 1)\times n}">. Kot lahko opazimo iz oznake imamo v vsaki igri novo strategijo, ki jo postavimo na podlagi prejšnjih iger. Strategijo v vsaki igri določimo na enak način, kot smo jo določili pri poznani verjetnosti s to razliko, da moramo verjetnosti sedaj oceniti. Verjetnosti v vsaki igri ocenimo znova z upoštevanje števil, ki so padla v prejšnjih igrah.
 
+
+Verjetnosti ocenimo z uporabo `bayesove statistike`, katere natančen opis se lahko najde na [wiki](https://en.wikipedia.org/wiki/Bayesian_inference). Osnovna ideja ocenjevanja parametrov z bayesovo statistiko je, da se izračuna pričakovano vrednost ocenjevanega parametra iz aposteriorne gostote in to uporabimo, kot oceno parametra. Aposteriorna gostota je sestavljena iz apriorne gostote, ki predstavlja naše predhodno prepričanje o ocenjevanem parametru in iz vzorčne gostote (X|p). Torej aposteriorna gostota je oblike:
+
+<p align"center">
+<img src="https://render.githubusercontent.com/render/math?math=\pi(p|x)=f(x|p)\pi(p)">
+</p>
+
+S takim postopkom izračunamo cenilko za **p** v n-ti igri. Cenilka verjetnosti v n-ti igri za k-to številko je enaka:
+
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=\hat{p}_{n,k}=E(p_k|X[n-1])=\frac{\alpha_k %2B S_k[n-1]}{\alpha_{%2B}%2B n-1}">
+</p>
+
+kjer je:
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=S_k[n-1]=\sum_{i=1}^{n-1}X_{ik}">
+</p>
+
+Seveda `S` je za n=0 enak 0.
