@@ -69,7 +69,55 @@ Sedaj je upanje dobitka veliko lažeje izračunati in dobimo:
 <a href="https://www.codecogs.com/eqnedit.php?latex=\sum_{k=1}^Kp_kln(\gamma_0&plus;(M_k&plus;1)\gamma_k)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sum_{k=1}^Kp_kln(\gamma_0&plus;(M_k&plus;1)\gamma_k)" title="\sum_{k=1}^Kp_kln(\gamma_0+(M_k+1)\gamma_k)" /></a>
 </p>
 
-Imamo še dva pogoja <img src="https://render.githubusercontent.com/render/math?math=\gamma_k\geq"> za k=0,1,...,K in <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=0}^K\gamma_k=1">. Z maksimizacijo dobimo spodnjo strategijo:
+Imamo še dva pogoja <img src="https://render.githubusercontent.com/render/math?math=\gamma_k\geq 0"> za k=0,1,...,K in <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=0}^K\gamma_k=1">. Z uporabo Kuhn_Tucker-jevih pogojev dobimo maksimalno pričakovano vrednost logaritma ene igre:
 
+<p align="center">
+<a href="https://www.codecogs.com/eqnedit.php?latex=\sum_{k=1}^{r}p_{k}ln(p_{k}(M_{k}&plus;1))&plus;p_{0}ln(\gamma_{0})" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sum_{k=1}^{r}p_{k}ln(p_{k}(M_{k}&plus;1))&plus;p_{0}ln(\gamma_{0})" title="\sum_{k=1}^{r}p_{k}ln(p_{k}(M_{k}+1))+p_{0}ln(\gamma_{0})" /></a>
+</p>
+
+Kjer je 
+<p align="center">
+<a href="https://www.codecogs.com/eqnedit.php?latex=p_{0}&space;=&space;\sum_{k=r&plus;1}^{K}&space;p_{k}" target="_blank"><img src="https://latex.codecogs.com/png.latex?p_{0}&space;=&space;\sum_{k=r&plus;1}^{K}&space;p_{k}" title="p_{0} = \sum_{k=r+1}^{K} p_{k}" /></a>
+</p>
+Za `r` pa velja <img src="https://render.githubusercontent.com/render/math?math=K\geq r\geq 1"> in je največje število za katero veljata naslednja pogoja:
+
+<p align="center">
+<a href="https://www.codecogs.com/eqnedit.php?latex=\begin{align*}&space;1&space;-&space;\sum_{k=1}^{r}&space;\frac{1}{M_{k}&plus;1}&space;>&space;0&space;\\&space;p_{r}(M_{r}&plus;1)&space;>&space;\gamma_{0}[r]&space;\end{align*}" target="_blank"><img src="https://latex.codecogs.com/png.latex?\begin{align*}&space;1&space;-&space;\sum_{k=1}^{r}&space;\frac{1}{M_{k}&plus;1}&space;>&space;0&space;\\&space;p_{r}(M_{r}&plus;1)&space;>&space;\gamma_{0}[r]&space;\end{align*}" title="\begin{align*} 1 - \sum_{k=1}^{r} \frac{1}{M_{k}+1} > 0 \\ p_{r}(M_{r}+1) > \gamma_{0}[r] \end{align*}" /></a>
+</p>
+
+Kjer je:
+
+<p align="center">
+<a href="https://www.codecogs.com/eqnedit.php?latex=\gamma_{0}[k]&space;=&space;\frac{1-\sum_{j=1}^{k}&space;p_{j}}{1-\sum_{t=1}^{k}&space;\frac{1}{M_{t}&plus;1}}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\gamma_{0}[k]&space;=&space;\frac{1-\sum_{j=1}^{k}&space;p_{j}}{1-\sum_{t=1}^{k}&space;\frac{1}{M_{t}&plus;1}}" title="\gamma_{0}[k] = \frac{1-\sum_{j=1}^{k} p_{j}}{1-\sum_{t=1}^{k} \frac{1}{M_{t}+1}}" /></a>
+</p>
+
+In tako je <img src="https://render.githubusercontent.com/render/math?math=\gamma_0 = \gamma_0[r]"> in:
+
+<p align="center">
+<a href="https://www.codecogs.com/eqnedit.php?latex=\gamma_{k}&space;=&space;p_{k}&space;-&space;\frac{\gamma_{0}}{M_{k}&plus;1}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\gamma_{k}&space;=&space;p_{k}&space;-&space;\frac{\gamma_{0}}{M_{k}&plus;1}" title="\gamma_{k} = p_{k} - \frac{\gamma_{0}}{M_{k}+1}" /></a>
+</p>
+
+#### Primer
+
+Denimo, da imamo 7 možnih stav tj. K=7, ki pokrijejo vsa možna števila pri ameriški ruleti. Prva stava, ki jo označimo z k=1 je stava na prvih 6 števil {1,...,6} izplačilo je 5:1. Do k=6 imamo stave na naslednjih 6 števil, kot si sledijo po vrsti. Stava k=6 predstavlja stavo na obe ničli {0, 00} z izplačilom 17:1. Zadnja možna stava pa je stava na zadnjih 6 števil {31,...,36}. Verjetnosti so naslednje p=(11/38, 9/38, 7/38, 5/38, 3/38, 1/38, 2/38)
+
+|k|Verjetnost|Izplačilo (M_k)|p_k(M_k+1)|y_0[k]|y_k|
+|--|--|--|--|--|--|
+|1|11/38|5|66/38|81/95|4/19|
+|2|9/38|5|54/38|27/38|3/19|
+|3|7/38|5|42/38|11/19|2/19|
+|4|5/38|5|30/38|9/19|1/19|
+|5|3/38|5|18/38|9/19|0|
+|6|1/38|17|18/38|-|0|
+|7|2/38|5|12/38|-|0|
+
+V tem primeru je r=4, saj pri k=5 ne velja 18/38 > 9/19 vendar velja enakost in tako eden izmed dveh pogojev ni izpolnjen. Opazimo, da velik delež denarja ne stavimo vendar ga zadržimo.
+
+
+#### Pričakovana vrendnost dobitka in varianca
+
+
+
+### Nepoznane verjetnosti
 
 
