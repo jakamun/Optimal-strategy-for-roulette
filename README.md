@@ -97,6 +97,28 @@ In tako je <img src="https://render.githubusercontent.com/render/math?math=\gamm
 <a href="https://www.codecogs.com/eqnedit.php?latex=\gamma_{k}&space;=&space;p_{k}&space;-&space;\frac{\gamma_{0}}{M_{k}&plus;1}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\gamma_{k}&space;=&space;p_{k}&space;-&space;\frac{\gamma_{0}}{M_{k}&plus;1}" title="\gamma_{k} = p_{k} - \frac{\gamma_{0}}{M_{k}+1}" /></a>
 </p>
 
+#### Pričakovana vrednost in varianca
+
+Pričakovana vrednost dobička po n igrah je zaradi neodvisnosti posameznih iger med sabo enaka:
+
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=E(C_{n}/C_{0})=[E(C_{1}/C_{0})]^{n}=[E(\gamma_{0}%2B\sum_{k=1}^{K}\gamma_{k}(M_{k} %2B 1)X_{ik})]^{n}">
+</p>
+
+Enačba za izračun variance je nekoliko bolj zakomplicirana:
+
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=Var(C_{n}/C_{0})=\{E(C_{1}/C_{0})\}^{2n}[(1%2B \Delta_{1}^{2})^{n}-1]">
+</p>
+
+kjer je
+
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=\Delta_{1}=\sigma(C_{1}/C_{0})/E(C_{1}/C_{0})=\frac{[\sum_{k=1}^{K}p_k\gamma_{k}^{2}(M_{k}%2B 1)^{2}-(\sum_{k=1}^{K}p_{k}\gamma_{k}(M_{k}%2B 1))^{2}]^{1/2}}{[\gamma_{0}%2B \sum_{k=1}^{K}p_{k}\gamma_{k}(M_{k}%2B 1)]}">
+</p>
+
+V praksi je lahko varianca oz. standardna deviacija zelo velika v primerjavi z upanjem. Zato lahko pri igranju iste rulete, kdaj priigramo veliko denarja, kdaj pa zelo malo ali celo izgubimo.
+
 #### Primer
 
 Denimo, da imamo 7 možnih stav tj. K=7, ki pokrijejo vsa možna števila pri ameriški ruleti. Prva stava, ki jo označimo z k=1 je stava na prvih 6 števil {1,...,6} izplačilo je 5:1. Do k=6 imamo stave na naslednjih 6 števil, kot si sledijo po vrsti. Stava k=6 predstavlja stavo na obe ničli {0, 00} z izplačilom 17:1. Zadnja možna stava pa je stava na zadnjih 6 števil {31,...,36}. Verjetnosti so naslednje p=(11/38, 9/38, 7/38, 5/38, 3/38, 1/38, 2/38)
@@ -111,23 +133,47 @@ Denimo, da imamo 7 možnih stav tj. K=7, ki pokrijejo vsa možna števila pri am
 |6|1/38|17|18/38|-|0|
 |7|2/38|5|12/38|-|0|
 
-V tem primeru je r=4, saj pri k=5 ne velja 18/38 > 9/19 vendar velja enakost in tako eden izmed dveh pogojev ni izpolnjen. Opazimo, da velik delež denarja ne stavimo vendar ga zadržimo.
+V tem primeru je r=4, saj pri k=5 ne velja 18/38 > 9/19 vendar velja enakost in tako eden izmed dveh pogojev ni izpolnjen. Opazimo, da velik delež denarja ne stavimo vendar ga zadržimo. Poglejmo še kakšna pričakovana vrednost in varianca. Pričakovana vrednost je enaka:
 
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=E(C_{1}/C_{0})=\frac{9}{19}%2B \frac{11}{38}\frac{4}{19}6%2B \frac{9}{38}\frac{3}{19}6%2B \frac{7}{38}\frac{2}{19}6%2B \frac{5}{38}\frac{1}{19}6=\frac{441}{361}\dot{=}1.2216">
+</p>
 
-#### Pričakovana vrendnost dobitka in varianca
+Poglejmo kolikšna je pričakovana vrednost denarja po 10 igrah, 50 igrah in 100 igrah za začeten kapital 10 €.
 
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=E(C_{10})=10\cdot (1.22)^{10}\dot{=}74"> <br />
+  <img src="https://render.githubusercontent.com/render/math?math=E(C_{50})=10\cdot (1.22)^{50}\dot{=}207,965.6"> <br />
+  <img src="https://render.githubusercontent.com/render/math?math=E(C_{100})=10\cdot (1.22)^{100}\dot{=}4\cdot 10^{9}">
+</p>
 
+Vidimo, da pričakovana vrednost raste eksponentno, kar je zelo dobro za igralca. Poglejmo pa še kaj se dogaja z varianco
+
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=\sigma(C_{1}/C_{0})=[\frac{11}{38}(\frac{4}{19})^{2}6^{2} %2B \frac{9}{38}(\frac{3}{19})^{2}6^{2}%2B \frac{7}{38}(\frac{2}{19})^{2}6^{2}%2B \frac{5}{38}(\frac{1}{19})^{2}6^{2}-(\frac{11}{38}\frac{4}{19}6%2B \frac{9}{38}\frac{3}{19}6%2B \frac{7}{38}\frac{2}{19}6%2B \frac{5}{38}\frac{1}{19}6)^{2}]^{1/2}\dot{=}0.9"> <br />
+  <img src="https://render.githubusercontent.com/render/math?math=\Delta_{1}=\sigma(C_{1}/C_{0})/E(C_{1}/C_{0})\dot{=}0.74"><br />
+  <img src="https://render.githubusercontent.com/render/math?math=\sigma(C_{100})=E(C_{100})[(1+\Delta_{1}^2)^{100}-1]^{1/2}\dot{=}3.47\times 10^{15}">
+</p>
+
+Kot vidimo je standardni odklon za 100 iger zelo velik, kar pomeni da kljub temu da lahko v povprečju pričakujemo zelo velik dobiček pa bodo te dobički zelo variirali.
 
 ### Nepoznane verjetnosti
 
 Seveda v realnem svetu ni za pričakovati, da bomo poznali verjetnosti. Zato poiščimo optimalno strategijo za n iger <img src="https://render.githubusercontent.com/render/math?math=\gamma[n]=(\gamma_{1},\dots ,\gamma_{n})^{(K %2B 1)\times n}">. Kot lahko opazimo iz oznake imamo v vsaki igri novo strategijo, ki jo postavimo na podlagi prejšnjih iger. Strategijo v vsaki igri določimo na enak način, kot smo jo določili pri poznani verjetnosti s to razliko, da moramo verjetnosti sedaj oceniti. Verjetnosti v vsaki igri ocenimo znova z upoštevanje števil, ki so padla v prejšnjih igrah.
 
-
 Verjetnosti ocenimo z uporabo `bayesove statistike`, katere natančen opis se lahko najde na [wiki](https://en.wikipedia.org/wiki/Bayesian_inference). Osnovna ideja ocenjevanja parametrov z bayesovo statistiko je, da se izračuna pričakovano vrednost ocenjevanega parametra iz aposteriorne gostote in to uporabimo, kot oceno parametra. Aposteriorna gostota je sestavljena iz apriorne gostote, ki predstavlja naše predhodno prepričanje o ocenjevanem parametru in iz vzorčne gostote (X|p). Torej aposteriorna gostota je oblike:
 
 <p align"center">
-<img src="https://render.githubusercontent.com/render/math?math=\pi(p|x)=f(x|p)\pi(p)">
+  <img src="https://render.githubusercontent.com/render/math?math=\pi(p|x)=f(x|p)\pi(p)">
 </p>
+
+Ker so (X|p) porazdeljeni multinomsko je naravno izbrati apriorno porazdelitev tako, ki je podobna multinomski porazdelitvi. Takšna porazdelitev je dirichletova porazdelitev:
+
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=f_{p}(p)=\frac{\Gamma(\alpha_{%2B})}{\Gamma(\alpha_{1})\cdots\Gamma(\alpha_K)}p_{1}^{\alpha_{1}-1}\cdots p_{K}^{\alpha_{K}-1}">
+</p>
+
+
 
 S takim postopkom izračunamo cenilko za **p** v n-ti igri. Cenilka verjetnosti v n-ti igri za k-to številko je enaka:
 
