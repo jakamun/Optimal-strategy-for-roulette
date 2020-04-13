@@ -54,7 +54,7 @@ Denimo, da kolo zavrtimo n-krat. Igre so med sabo neodvisne in enako porazdeljen
 Z <img src="https://render.githubusercontent.com/render/math?math=M_k"> bomo označili dobitek k-te številke oz. k-tega polja na katerega lahko stavimo. Naj bo <img src="https://render.githubusercontent.com/render/math?math=C_0"> začetni kapital in <img src="https://render.githubusercontent.com/render/math?math=C_n"> kapital ob koncu n-te igre. Z <img src="https://render.githubusercontent.com/render/math?math=\gamma_n=(\gamma_{n0},\gamma_{n1},\dots,\gamma_{nK})^T"> označimo strategijo n-te igre, kjer je <img src="https://render.githubusercontent.com/render/math?math=\gamma_{n0}"> delež kapitala, ki ga ne stavimo, <img src="https://render.githubusercontent.com/render/math?math=\gamma_{nk}"> pa predstavlja delež kapitala, ki ga stavimo na k-to številko v n-ti igri. Denar, ki ga imamo na voljo po koncu n-te igre je enak:
 
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=C_n = C_{n-1}(\gamma_{n0} + \sum_{j=1}^K\gamma_{nj}(M_k+1)X_{nj})=C_0\prod_{i=1}^n(\gamma_{i0} + \sum_{j=1}^K\gamma_{ij}(M_k+1)X_{ij})">
+<img src="https://render.githubusercontent.com/render/math?math=C_n = C_{n-1}(\gamma_{n0} %2B \sum_{j=1}^K\gamma_{nj}(M_k %2B 1)X_{nj})=C_0\prod_{i=1}^n(\gamma_{i0} %2B \sum_{j=1}^K\gamma_{ij}(M_k %2B 1)X_{ij})">
 </p>
 
 Problem lahko ločimo na dva primera. Na primer, ko poznamo verjetnosti in primer, ko ne poznamo verjetnosti. Izkaže se, da je strategija, ki jo izoblikujemo pri poznanih verjetnostih enaka, kot ko ne poznamo verjetnosti s to razliko, da pri nepoznanih verjetnostih vedno znova ocenimo verjetnosti na podlagi informacij iz preteklih iger.
@@ -64,41 +64,43 @@ Problem lahko ločimo na dva primera. Na primer, ko poznamo verjetnosti in prime
 Če poznamo verjetnosti potem igramo ves čas z enako strategijo, torej na posamezne številke stavimo v vsaki igri enake deleže denarja, saj se nam tekom igre ne razkrivajo nove informacije o verjetnostih in zato ne rabimo spreminjati strategije. [Kelley](https://www.princeton.edu/~wbialek/rome/refs/kelly_56.pdf) je ugotovil, da dobimo z maksimizacijo logaritma dobitka optimalnejšo strategijo. Zato maksimiziramo pričakovano vrednost logaritma dobitka po eni igri. Dobitek po eni igri bi lahko zapisali kot <img src="https://render.githubusercontent.com/render/math?math=C_1">, vendar raje zapišemo dobitek po eni igri kot:
 
 <p align="center">
-  <a href="https://www.codecogs.com/eqnedit.php?latex=\prod_{k=1}^K(\gamma_0&plus;(M_k&plus;1)\gamma_k)^{X_k}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\prod_{k=1}^K(\gamma_0&plus;(M_k&plus;1)\gamma_k)^{X_k}" title="\prod_{k=1}^K(\gamma_0+(M_k+1)\gamma_k)^{X_k}" /></a>
+  <img src="https://render.githubusercontent.com/render/math?math=\prod_{k=1}^K(\gamma_0 %2B (M_k %2B 1)\gamma_k)^{X_k}">
 </p>
 
 Sedaj je upanje dobitka veliko lažeje izračunati in dobimo:
 
 <p align="center">
-<a href="https://www.codecogs.com/eqnedit.php?latex=\sum_{k=1}^Kp_kln(\gamma_0&plus;(M_k&plus;1)\gamma_k)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sum_{k=1}^Kp_kln(\gamma_0&plus;(M_k&plus;1)\gamma_k)" title="\sum_{k=1}^Kp_kln(\gamma_0+(M_k+1)\gamma_k)" /></a>
+  <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=1}^Kp_{k}ln(\gamma_0 %2B (M_k %2B 1)\gamma_k)">
 </p>
 
 Imamo še dva pogoja <img src="https://render.githubusercontent.com/render/math?math=\gamma_k\geq 0"> za k=0,1,...,K in <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=0}^K\gamma_k=1">. Z uporabo Kuhn_Tucker-jevih pogojev dobimo maksimalno pričakovano vrednost logaritma ene igre:
 
 <p align="center">
-<a href="https://www.codecogs.com/eqnedit.php?latex=\sum_{k=1}^{r}p_{k}ln(p_{k}(M_{k}&plus;1))&plus;p_{0}ln(\gamma_{0})" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sum_{k=1}^{r}p_{k}ln(p_{k}(M_{k}&plus;1))&plus;p_{0}ln(\gamma_{0})" title="\sum_{k=1}^{r}p_{k}ln(p_{k}(M_{k}+1))+p_{0}ln(\gamma_{0})" /></a>
+  <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=1}^{r}p_{k}ln(p_{k}(M_{k} %2B 1)) %2B p_{0}ln(\gamma_{0})">
 </p>
 
 Kjer je 
+
 <p align="center">
-<a href="https://www.codecogs.com/eqnedit.php?latex=p_{0}&space;=&space;\sum_{k=r&plus;1}^{K}&space;p_{k}" target="_blank"><img src="https://latex.codecogs.com/png.latex?p_{0}&space;=&space;\sum_{k=r&plus;1}^{K}&space;p_{k}" title="p_{0} = \sum_{k=r+1}^{K} p_{k}" /></a>
+  <img src="https://render.githubusercontent.com/render/math?math=p_{0} = \sum_{k=r %2B 1}^{K} p_{k}">
 </p>
+
 Za `r` pa velja <img src="https://render.githubusercontent.com/render/math?math=K\geq r\geq 1"> in je največje število za katero veljata naslednja pogoja:
 
 <p align="center">
-<a href="https://www.codecogs.com/eqnedit.php?latex=\begin{align*}&space;1&space;-&space;\sum_{k=1}^{r}&space;\frac{1}{M_{k}&plus;1}&space;>&space;0&space;\\&space;p_{r}(M_{r}&plus;1)&space;>&space;\gamma_{0}[r]&space;\end{align*}" target="_blank"><img src="https://latex.codecogs.com/png.latex?\begin{align*}&space;1&space;-&space;\sum_{k=1}^{r}&space;\frac{1}{M_{k}&plus;1}&space;>&space;0&space;\\&space;p_{r}(M_{r}&plus;1)&space;>&space;\gamma_{0}[r]&space;\end{align*}" title="\begin{align*} 1 - \sum_{k=1}^{r} \frac{1}{M_{k}+1} > 0 \\ p_{r}(M_{r}+1) > \gamma_{0}[r] \end{align*}" /></a>
+  <img src="https://render.githubusercontent.com/render/math?math=1 - \sum_{k=1}^{r} \frac{1}{M_{k} %2B 1} > 0"> <br />
+  <img src="https://render.githubusercontent.com/render/math?math=p_{r}(M_{r} %2B 1) > \gamma_{0}[r]">
 </p>
 
 Kjer je:
-
 <p align="center">
-<a href="https://www.codecogs.com/eqnedit.php?latex=\gamma_{0}[k]&space;=&space;\frac{1-\sum_{j=1}^{k}&space;p_{j}}{1-\sum_{t=1}^{k}&space;\frac{1}{M_{t}&plus;1}}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\gamma_{0}[k]&space;=&space;\frac{1-\sum_{j=1}^{k}&space;p_{j}}{1-\sum_{t=1}^{k}&space;\frac{1}{M_{t}&plus;1}}" title="\gamma_{0}[k] = \frac{1-\sum_{j=1}^{k} p_{j}}{1-\sum_{t=1}^{k} \frac{1}{M_{t}+1}}" /></a>
+  <img src="https://render.githubusercontent.com/render/math?math=\gamma_{0}[k] = \frac{1-\sum_{j=1}^{k} p_{j}}{1-\sum_{t=1}^{k} \frac{1}{M_{t} %2B 1}}">
 </p>
 
 In tako je <img src="https://render.githubusercontent.com/render/math?math=\gamma_0 = \gamma_0[r]"> in:
 
 <p align="center">
-<a href="https://www.codecogs.com/eqnedit.php?latex=\gamma_{k}&space;=&space;p_{k}&space;-&space;\frac{\gamma_{0}}{M_{k}&plus;1}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\gamma_{k}&space;=&space;p_{k}&space;-&space;\frac{\gamma_{0}}{M_{k}&plus;1}" title="\gamma_{k} = p_{k} - \frac{\gamma_{0}}{M_{k}+1}" /></a>
+  <img src="https://render.githubusercontent.com/render/math?math=\gamma_{k} = p_{k} - \frac{\gamma_{0}}{M_{k} %2B 1}">
 </p>
 
 #### Pričakovana vrednost in varianca
