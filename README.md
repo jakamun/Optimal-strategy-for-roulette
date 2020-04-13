@@ -51,64 +51,64 @@ Zgornja tabela prikazuje verjetnosti pri pošteni igri rulete. Za pošteno rulet
 
 Denimo, da kolo zavrtimo n-krat. Igre so med sabo neodvisne in enako porazdeljene. Izid i-te igre označimo z <img src="https://render.githubusercontent.com/render/math?math=X_i=(X_{i1},\dots,X_{iK})^T">, kjer je <img src="https://render.githubusercontent.com/render/math?math=X_{ij}"> slučajna spremenljivka v i-ti igri za j-to številko na kolesu in je enaka 1, če ta številka pade ali 0, če ne. Očitno mora veljati, da se te slučajne spremenljivke seštejejo oz. da v posamezni igri pade samo ena številka. Slučajne spremenljvke lahko predstavljajo tudi kaj drugega kot številke, lahko predstavljajo tudi posamezne skupine števil, vendar mora veljati, da se seštejejo v ena tj. dve različni polji ne smeta pokrivati istega števila. Verjetnosti, da padejo posamezne številke oz. kombinacije števil pa označimo z vektorjem verjetnosti <img src="https://render.githubusercontent.com/render/math?math=p=(p_1,\dots,p_K)">. Torej <img src="https://render.githubusercontent.com/render/math?math=X_{ij}=1">, če številka pade z verjetnostjo <img src="https://render.githubusercontent.com/render/math?math=p_j"> in <img src="https://render.githubusercontent.com/render/math?math=X_{ij}=0">, če ne pade z verjetnostjo <img src="https://render.githubusercontent.com/render/math?math=1-p_j">. 
 
-Z <img src="https://render.githubusercontent.com/render/math?math=M_k"> bomo označili dobitek k-te številke oz. k-tega polja na katerega lahko stavimo. Naj bo <img src="https://render.githubusercontent.com/render/math?math=C_0"> začetni kapital in <img src="https://render.githubusercontent.com/render/math?math=C_n"> kapital ob koncu n-te igre. Z <img src="https://render.githubusercontent.com/render/math?math=\gamma_n=(\gamma_{n0},\gamma_{n1},\dots,\gamma_{nK})^T"> označimo strategijo n-te igre, kjer je <img src="https://render.githubusercontent.com/render/math?math=\gamma_{n0}"> delež kapitala, ki ga ne stavimo, <img src="https://render.githubusercontent.com/render/math?math=\gamma_{nk}"> pa predstavlja delež kapitala, ki ga stavimo na k-to številko v n-ti igri. Denar, ki ga imamo na voljo po koncu n-te igre je enak:
+Z <img src="https://render.githubusercontent.com/render/math?math=M_k"> bomo označili dobitek k-te številke oz. k-tega polja na katerega lahko stavimo. Naj bo <img src="https://render.githubusercontent.com/render/math?math=C_0"> začetni kapital in <img src="https://render.githubusercontent.com/render/math?math=C_n"> kapital ob koncu n-te igre. Z <img src="https://render.githubusercontent.com/render/math?math=\gamma_n=(\gamma_{n0},\gamma_{n1},\dots,\gamma_{nK})^T"> označimo strategijo n-te igre, kjer je <img src="https://render.githubusercontent.com/render/math?math=\gamma_{n0}"> delež kapitala, ki ga ne stavimo, <img src="https://render.githubusercontent.com/render/math?math=\gamma_{nk}"> pa predstavlja delež kapitala, ki ga stavimo na k-to številko v n-ti igri. Denar, ki ga imamo na voljo po koncu n-te igre je enak
 
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=C_n = C_{n-1}(\gamma_{n0} %2B \sum_{j=1}^K\gamma_{nj}(M_k %2B 1)X_{nj})=C_0\prod_{i=1}^n(\gamma_{i0} %2B \sum_{j=1}^K\gamma_{ij}(M_k %2B 1)X_{ij})">
+<img src="https://render.githubusercontent.com/render/math?math=C_n = C_{n-1}(\gamma_{n0} %2B \sum_{j=1}^K\gamma_{nj}(M_k %2B 1)X_{nj})=C_0\prod_{i=1}^n(\gamma_{i0} %2B \sum_{j=1}^K\gamma_{ij}(M_k %2B 1)X_{ij}).">
 </p>
 
 Problem lahko ločimo na dva primera. Na primer, ko poznamo verjetnosti in primer, ko ne poznamo verjetnosti. Izkaže se, da je strategija, ki jo izoblikujemo pri poznanih verjetnostih enaka, kot ko ne poznamo verjetnosti s to razliko, da pri nepoznanih verjetnostih vedno znova ocenimo verjetnosti na podlagi informacij iz preteklih iger.
 
 ### Optimalna strategija za znane verjetnosti
 
-Če poznamo verjetnosti potem igramo ves čas z enako strategijo, torej na posamezne številke stavimo v vsaki igri enake deleže denarja, saj se nam tekom igre ne razkrivajo nove informacije o verjetnostih in zato ne rabimo spreminjati strategije. [Kelley](https://www.princeton.edu/~wbialek/rome/refs/kelly_56.pdf) je ugotovil, da dobimo z maksimizacijo logaritma dobitka optimalnejšo strategijo. Zato maksimiziramo pričakovano vrednost logaritma dobitka po eni igri. Dobitek po eni igri bi lahko zapisali kot <img src="https://render.githubusercontent.com/render/math?math=C_1">, vendar raje zapišemo dobitek po eni igri kot:
+Če poznamo verjetnosti potem igramo ves čas z enako strategijo, torej na posamezne številke v vsaki igri stavimo enake deleže denarja, saj se nam tekom igre ne razkrivajo nove informacije o verjetnostih in zato ne rabimo spreminjati strategije. Za izračun optimalne strategije potrebujemo najprej urediti in reindeksirati vse možne stave v tak vrstni red, da velja
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=\prod_{k=1}^K(\gamma_0 %2B (M_k %2B 1)\gamma_k)^{X_k}">
+  <img src="https://render.githubusercontent.com/render/math?math=p_{1}(M_{1}%2B 1)\geq p_{2}(M_{2}%2B 1)\geq \dots\geq p_{K}(M_{K}%2B 1).">
 </p>
 
-Sedaj je upanje dobitka veliko lažeje izračunati in dobimo:
+Za izračun optimalne strategije je potrebno maksimizirati pričakovano vrednost logaritma dobitka
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=1}^Kp_{k}ln(\gamma_0 %2B (M_k %2B 1)\gamma_k)">
+  <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=1}^Kp_{k}ln(\gamma_0 %2B (M_k %2B 1)\gamma_k).">
 </p>
 
-Imamo še dva pogoja <img src="https://render.githubusercontent.com/render/math?math=\gamma_k\geq 0"> za k=0,1,...,K in <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=0}^K\gamma_k=1">. Z uporabo Kuhn_Tucker-jevih pogojev dobimo maksimalno pričakovano vrednost logaritma ene igre:
+Pri tem je potrebno upoštevati še dva pogoja <img src="https://render.githubusercontent.com/render/math?math=\gamma_k\geq 0"> za k=0,1,...,K in <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=0}^K\gamma_k=1">. Z uporabo Kuhn_Tucker-jevih pogojev dobimo maksimalno pričakovano vrednost logaritma ene igre
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=1}^{r}p_{k}ln(p_{k}(M_{k} %2B 1)) %2B p_{0}ln(\gamma_{0})">
+  <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=1}^{r}p_{k}ln(p_{k}(M_{k} %2B 1)) %2B p_{0}ln(\gamma_{0}).">
 </p>
 
 Kjer je 
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=p_{0} = \sum_{k=r %2B 1}^{K} p_{k}">
+  <img src="https://render.githubusercontent.com/render/math?math=p_{0} = \sum_{k=r %2B 1}^{K} p_{k},">
 </p>
 
-Za `r` pa velja <img src="https://render.githubusercontent.com/render/math?math=K\geq r\geq 1"> in je največje število za katero veljata naslednja pogoja:
+`r` pa je največje število za katero veljata naslednja pogoja
 
 <p align="center">
   <img src="https://render.githubusercontent.com/render/math?math=1 - \sum_{k=1}^{r} \frac{1}{M_{k} %2B 1} > 0"> <br />
-  <img src="https://render.githubusercontent.com/render/math?math=p_{r}(M_{r} %2B 1) > \gamma_{0}[r]">
+  <img src="https://render.githubusercontent.com/render/math?math=p_{r}(M_{r} %2B 1) > \gamma_{0}[r].">
 </p>
 
-Kjer je:
+Kjer je
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=\gamma_{0}[k] = \frac{1-\sum_{j=1}^{k} p_{j}}{1-\sum_{t=1}^{k} \frac{1}{M_{t} %2B 1}}">
+  <img src="https://render.githubusercontent.com/render/math?math=\gamma_{0}[k] = \frac{1-\sum_{j=1}^{k} p_{j}}{1-\sum_{t=1}^{k} \frac{1}{M_{t} %2B 1}}.">
 </p>
 
-In tako je <img src="https://render.githubusercontent.com/render/math?math=\gamma_0 = \gamma_0[r]"> in:
+Tako je <img src="https://render.githubusercontent.com/render/math?math=\gamma_0 = \gamma_0[r]"> in
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=\gamma_{k} = p_{k} - \frac{\gamma_{0}}{M_{k} %2B 1}">
+  <img src="https://render.githubusercontent.com/render/math?math=\gamma_{k} = p_{k} - \frac{\gamma_{0}}{M_{k} %2B 1}.">
 </p>
 
 #### Pričakovana vrednost in varianca
 
-Pričakovana vrednost dobička po n igrah je zaradi neodvisnosti posameznih iger med sabo enaka:
+Pričakovana vrednost dobička po n igrah je zaradi neodvisnosti posameznih iger med sabo enaka
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=E(C_{n}/C_{0})=[E(C_{1}/C_{0})]^{n}=[E(\gamma_{0}%2B\sum_{k=1}^{K}\gamma_{k}(M_{k} %2B 1)X_{ik})]^{n}">
+  <img src="https://render.githubusercontent.com/render/math?math=E(C_{n}/C_{0})=[E(C_{1}/C_{0})]^{n}=[E(\gamma_{0}%2B\sum_{k=1}^{K}\gamma_{k}(M_{k} %2B 1)X_{ik})]^{n}.">
 </p>
 
 Enačba za izračun variance je nekoliko bolj zakomplicirana:
@@ -123,11 +123,11 @@ kjer je
   <img src="https://render.githubusercontent.com/render/math?math=\Delta_{1}=\sigma(C_{1}/C_{0})/E(C_{1}/C_{0})=\frac{[\sum_{k=1}^{K}p_k\gamma_{k}^{2}(M_{k}%2B 1)^{2}-(\sum_{k=1}^{K}p_{k}\gamma_{k}(M_{k}%2B 1))^{2}]^{1/2}}{[\gamma_{0}%2B \sum_{k=1}^{K}p_{k}\gamma_{k}(M_{k}%2B 1)]}">
 </p>
 
-V praksi je lahko varianca oz. standardna deviacija zelo velika v primerjavi z upanjem. Zato lahko pri igranju iste rulete, kdaj priigramo veliko denarja, kdaj pa zelo malo ali celo izgubimo.
+V praksi je lahko varianca oz. standardna deviacija zelo velika v primerjavi z pričakovano vrednostjo. Zato lahko pri igranju iste rulete, kdaj priigramo veliko denarja, kdaj pa zelo malo ali celo izgubimo.
 
 #### Primer
 
-Denimo, da imamo 7 možnih stav tj. K=7, ki pokrijejo vsa možna števila pri ameriški ruleti. Prva stava, ki jo označimo z k=1 je stava na prvih 6 števil {1,...,6} izplačilo je 5:1. Do k=6 imamo stave na naslednjih 6 števil, kot si sledijo po vrsti. Stava k=6 predstavlja stavo na obe ničli {0, 00} z izplačilom 17:1. Zadnja možna stava pa je stava na zadnjih 6 števil {31,...,36}. Verjetnosti so naslednje p=(11/38, 9/38, 7/38, 5/38, 3/38, 1/38, 2/38)
+Denimo, da imamo 7 možnih stav tj. K=7, ki pokrijejo vsa možna števila pri ameriški ruleti. Prva stava, ki jo označimo z k=1 je stava na prvih 6 števil {1,...,6}. Do k=6 imamo stave na naslednjih 6 števil, kot si sledijo po vrsti. Stava k=6 predstavlja stavo na obe ničli {0, 00}. Zadnja možna stava pa je stava na zadnjih 6 števil {31,...,36}. Verjetnosti pa so naslednje p=(11/38, 9/38, 7/38, 5/38, 3/38, 1/38, 2/38).
 
 |k|Verjetnost|Izplačilo (M_k)|p_k(M_k+1)|y_0[k]|y_k|
 |--|--|--|--|--|--|
@@ -139,13 +139,13 @@ Denimo, da imamo 7 možnih stav tj. K=7, ki pokrijejo vsa možna števila pri am
 |6|1/38|17|18/38|-|0|
 |7|2/38|5|12/38|-|0|
 
-V tem primeru je r=4, saj pri k=5 ne velja 18/38 > 9/19 vendar velja enakost in tako eden izmed dveh pogojev ni izpolnjen. Opazimo, da velik delež denarja ne stavimo vendar ga zadržimo. Poglejmo še kakšna pričakovana vrednost in varianca. Pričakovana vrednost je enaka:
+V tem primeru je r=4, saj pri k=5 ne velja 18/38 > 9/19 vendar velja enakost in tako eden izmed dveh pogojev ni izpolnjen. Opazimo, da velik delež denarja ne stavimo vendar ga zadržimo. Poglejmo še kakšni sta pričakovana vrednost in varianca. Pričakovana vrednost je enaka:
 
 <p align="center">
   <img src="https://render.githubusercontent.com/render/math?math=E(C_{1}/C_{0})=\frac{9}{19}%2B \frac{11}{38}\frac{4}{19}6%2B \frac{9}{38}\frac{3}{19}6%2B \frac{7}{38}\frac{2}{19}6%2B \frac{5}{38}\frac{1}{19}6=\frac{441}{361}\dot{=}1.2216">
 </p>
 
-Poglejmo kolikšna je pričakovana vrednost denarja po 10 igrah, 50 igrah in 100 igrah za začeten kapital 10 €.
+Spodaj je izračunana pričakovana vrednost denarja po 10 igrah, 50 igrah in 100 igrah za začeten kapital 10 €.
 
 <p align="center">
   <img src="https://render.githubusercontent.com/render/math?math=E(C_{10})=10\cdot (1.22)^{10}\dot{=}74"> <br />
@@ -153,15 +153,13 @@ Poglejmo kolikšna je pričakovana vrednost denarja po 10 igrah, 50 igrah in 100
   <img src="https://render.githubusercontent.com/render/math?math=E(C_{100})=10\cdot (1.22)^{100}\dot{=}4\cdot 10^{9}">
 </p>
 
-Vidimo, da pričakovana vrednost raste eksponentno, kar je zelo dobro za igralca. Poglejmo pa še kaj se dogaja z varianco
+Vidimo, da pričakovana vrednost raste eksponentno, kar je zelo dobro za igralca. Vendar pa je prav tako zelik velik standardni odklon. Kar pomeni da lahko v povprečju pričakujemo zelo velik dobiček, vendar bodo te dobički zelo variirali in se lahko zgodi, da bomo kdaj tudi izgubili vložen denar.
 
 <p align="center">
   <img src="https://render.githubusercontent.com/render/math?math=\sigma(C_{1}/C_{0})=[\frac{11}{38}(\frac{4}{19})^{2}6^{2} %2B \frac{9}{38}(\frac{3}{19})^{2}6^{2}%2B \frac{7}{38}(\frac{2}{19})^{2}6^{2}%2B \frac{5}{38}(\frac{1}{19})^{2}6^{2}-(\frac{11}{38}\frac{4}{19}6%2B \frac{9}{38}\frac{3}{19}6%2B \frac{7}{38}\frac{2}{19}6%2B \frac{5}{38}\frac{1}{19}6)^{2}]^{1/2}\dot{=}0.9"> <br />
   <img src="https://render.githubusercontent.com/render/math?math=\Delta_{1}=\sigma(C_{1}/C_{0})/E(C_{1}/C_{0})\dot{=}0.74"><br />
   <img src="https://render.githubusercontent.com/render/math?math=\sigma(C_{100})=E(C_{100})[(1+\Delta_{1}^2)^{100}-1]^{1/2}\dot{=}3.47\times 10^{15}">
 </p>
-
-Kot vidimo je standardni odklon za 100 iger zelo velik, kar pomeni da kljub temu da lahko v povprečju pričakujemo zelo velik dobiček pa bodo te dobički zelo variirali.
 
 ### Nepoznane verjetnosti
 
