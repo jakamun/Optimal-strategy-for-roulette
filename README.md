@@ -163,31 +163,46 @@ Vidimo, da pričakovana vrednost raste eksponentno, kar je zelo dobro za igralca
 
 ### Nepoznane verjetnosti
 
-Seveda v realnem svetu ni za pričakovati, da bomo poznali verjetnosti. Zato poiščimo optimalno strategijo za n iger <img src="https://render.githubusercontent.com/render/math?math=\gamma[n]=(\gamma_{1},\dots ,\gamma_{n})^{(K %2B 1)\times n}">. Kot lahko opazimo iz oznake imamo v vsaki igri novo strategijo, ki jo postavimo na podlagi prejšnjih iger. Strategijo v vsaki igri določimo na enak način, kot smo jo določili pri poznani verjetnosti s to razliko, da moramo verjetnosti sedaj oceniti. Verjetnosti v vsaki igri ocenimo znova z upoštevanje števil, ki so padla v prejšnjih igrah.
+Seveda v realnem svetu ni za pričakovati, da bomo poznali verjetnosti posameznih števil. Zato je potrebno poiskati novo optimalno strategijo za n iger, ko ne poznamo verjetnosti <img src="https://render.githubusercontent.com/render/math?math=\gamma[n]=(\gamma_{1},\dots ,\gamma_{n})^{(K %2B 1)\times n}">. Kot lahko opazimo iz oznake imamo v vsaki igri novo strategijo, ki jo postavimo na podlagi prejšnjih iger. Izkaže se, da strategijo v vsaki igri določimo na enak način, kot smo jo določili pri poznani verjetnosti s to razliko, da moramo verjetnosti sedaj oceniti. Verjetnosti v vsaki igri ocenimo znova z upoštevanje števil, ki so padla v prejšnjih igrah.
 
-Verjetnosti ocenimo z uporabo `bayesove statistike`, katere natančen opis se lahko najde na [wiki](https://en.wikipedia.org/wiki/Bayesian_inference). Osnovna ideja ocenjevanja parametrov z bayesovo statistiko je, da se izračuna pričakovano vrednost ocenjevanega parametra iz aposteriorne gostote in to uporabimo, kot oceno parametra. Aposteriorna gostota je sestavljena iz apriorne gostote, ki predstavlja naše predhodno prepričanje o ocenjevanem parametru in iz vzorčne gostote (X|p). Torej aposteriorna gostota je oblike:
-
-<p align"center">
-  <img src="https://render.githubusercontent.com/render/math?math=\pi(p|x)=f(x|p)\pi(p)">
-</p>
-
-Ker so (X|p) porazdeljeni multinomsko je naravno izbrati apriorno porazdelitev tako, ki je podobna multinomski porazdelitvi. Takšna porazdelitev je dirichletova porazdelitev:
+Verjetnosti ocenimo z uporabo `bayesove statistike`, katere natančen opis se lahko najde na [wiki](https://en.wikipedia.org/wiki/Bayesian_inference). Osnovna ideja ocenjevanja parametrov z bayesovo statistiko je, da se za cenilko parametra uporabi pričakovano vrednost ocenjevanega parametra iz aposteriorne gostote. Aposteriorna gostota je sestavljena iz apriorne gostote, ki predstavlja naše predhodno prepričanje o ocenjevanem parametru in iz vzorčne gostote (X | p). Torej aposteriorna gostota je oblike
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=f_{p}(p)=\frac{\Gamma(\alpha_{%2B})}{\Gamma(\alpha_{1})\cdots\Gamma(\alpha_K)}p_{1}^{\alpha_{1}-1}\cdots p_{K}^{\alpha_{K}-1}">
+  <img src="https://render.githubusercontent.com/render/math?math=\pi(p|x)=f(x|p)\pi(p).">
 </p>
 
-
-
-S takim postopkom izračunamo cenilko za **p** v n-ti igri. Cenilka verjetnosti v n-ti igri za k-to številko je enaka:
+Ker so (X | p) porazdeljeni multinomsko je naravno izbrati apriorno porazdelitev tako, ki je podobna multinomski porazdelitvi. Takšna porazdelitev je dirichletova porazdelitev
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=\hat{p}_{n,k}=E(p_k|X[n-1])=\frac{\alpha_k %2B S_k[n-1]}{\alpha_{%2B}%2B n-1}">
+  <img src="https://render.githubusercontent.com/render/math?math=f_{p}(p)=\frac{\Gamma(\alpha_{%2B})}{\Gamma(\alpha_{1})\cdots\Gamma(\alpha_K)}p_{1}^{\alpha_{1}-1}\cdots p_{K}^{\alpha_{K}-1},">
+</p>
+
+kjer je
+
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=\alpha_{k} > 0,"> <br />
+  <img src="https://render.githubusercontent.com/render/math?math=\alpha_{%2B}=\sum_{j=1}^{K}\alpha_{j}.">
+</p>
+
+Ko poznamo apriorno gostoto in vzorčno gostoto ni težko izračunati tudi aposteriorno gostoto, s katero potem izračunamo pričakovano vrednost verjetnosti v n-ti igri. Cenilka verjetnosti v n-ti igri za k-to številko je
+
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=\hat{p}_{n,k}=E(p_k|X[n-1])=\frac{\alpha_k %2B S_k[n-1]}{\alpha_{%2B}%2B n-1}.">
 </p>
 
 kjer je:
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=S_k[n-1]=\sum_{i=1}^{n-1}X_{ik}">
+  <img src="https://render.githubusercontent.com/render/math?math=S_k[n-1]=\sum_{i=1}^{n-1}X_{ik},"> <br />
+  <img src="https://render.githubusercontent.com/render/math?math=S[0]=0">
 </p>
 
-Seveda `S` je za n=0 enak 0.
+Prav tako v vsakem koraku strategijo stavljenja zgolj ocenjujemo. Temu je tako, ker ne poznamo dejanskih verjetnosti temveč uporabljamo zgolj njihove ocene, zato je uporabljena strategija v vsakem koraku zgolj ocena prave strategije. 
+
+Je pa cenilka verjetnosti, in posledično tudi cenilka strategije, dosledna, kar pomeni, da če pošljemo n oz. število iger v neskončno dobimo pravo vrednost verjetnosti in strategije. Tudi pričakovana vrednost logaritma dobička konvergira proti vrednosti, ki smo jo izračunali kot maksimalno v primeru poznanih verjetnosti.
+
+#### Nasveti in komentarji
+
+Pri izbiri parametra alfa, ki nastopa v apriorni porazdelitvi je svetovano, da če stavimo samo na številke in ne tudi na njihove kombinacije, da izberemo vse alfe enake. S tem, ko so vse alfe enake so tudi začetne verjetnosti vse enake tj. predpostavljamo, da so vse verjetnosti enake tj., da kolo ni nepošteno. Če so ocene verjetnosti take, kot da bi bilo kolo pošteno potem z to strategijo, ne stavimo oz. stavimo zelo malo. Če nastavimo alfo veliko bomo na začetku, kar nekaj časa samo opazovali rezultate rulete brez, da bi stavili. Če je kolo nepošteno bomo ščasoma to ugotovili in začeli staviti več. Če pa nastavimo alfe majhne pa bomo začeli staviti prej vendar tu lahko pride do stavljenja na številke, ki niso najverjetnejše da padejo, kar nas lahko privede do izgube vloženega denarja. Tako da je bolje če izberemo veliko alfo. V [članku](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.49.3373&rep=rep1&type=pdf) je razvidno iz simulacij, da strategija deluje najbolje, če je alfa med 200 in 500 pri tem pa je potrebno odigrati vsaj 1000 iger, da lahko začnemo zares veliko staviti. Pri alfah, ki so med 50 in 100 začnemo staviti veliko prej vendar obstaja možnost, da ostanemo brez denarja. Vse alfe, ki pa so manjše pa običajno privedejo do izgube kapitala.
+
+Pri izbiri velike alfe se je potrebno zavedati, da nam hiša ne bodo pustile, da sedimo za mizo in opazujemo rezultate, dokler ne začnemo staviti. Prav tako je potrebno pripomniti, da v praksi ne moremo staviti necelih števil, kar pa naša strategija dopušča in v večini primerov svetuje. Prav tako večina kazinojev ne uporablja nepoštenih koles, če pa ga bi pa verjetno hitro zamenjali kolo, ko bi videli, da prihaja do velikih dobitkov.
+
