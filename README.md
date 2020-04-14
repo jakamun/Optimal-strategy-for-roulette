@@ -160,14 +160,16 @@ Vidimo, da pričakovana vrednost raste eksponentno, kar je zelo dobro za igralca
 
 Seveda v realnem svetu ni za pričakovati, da bomo poznali verjetnosti posameznih števil. Zato je potrebno poiskati novo optimalno strategijo za n iger, ko ne poznamo verjetnosti <img src="https://render.githubusercontent.com/render/math?math=\gamma[n]=(\gamma_{1},\dots ,\gamma_{n})^{(K %2B 1)\times n}">. Kot lahko opazimo iz oznake imamo v vsaki igri novo strategijo, ki jo postavimo na podlagi prejšnjih iger. Izkaže se, da strategijo v vsaki igri določimo na enak način, kot smo jo določili pri poznani verjetnosti s to razliko, da moramo verjetnosti sedaj oceniti. Verjetnosti v vsaki igri ocenimo znova z upoštevanje števil, ki so padla v prejšnjih igrah.
 
-Osnoven problem je maksmizacija pričakovane vrednosti logaritma dobička po n igrah pri nepoznanih verjetnostih
+Še vedno je osnoven problem maksmizacija pričakovane vrednosti logaritma dobička po n igrah vendar sedaj pri nepoznanih verjetnostih
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=E_{p}[E_{X[n] | p}[ln(C_{n}(\gamma[n],X[n]))]].">
+  <img src="https://render.githubusercontent.com/render/math?math=E_{p}[E_{X[n] | p}[ln(C_{n}(\gamma[n],X[n]))]]"> <br />
+  <img src="https://render.githubusercontent.com/render/math?math==E_{X[n-1]}[E_{p | X[n-1]}[ln(C_{n-1} %2B \sum_{k=1}^{K} p_{nk}ln(\gamma_{n0} %2B \gamma_{nk}(M_{k} %2B 1))]]"> <br />
+  <img src="https://render.githubusercontent.com/render/math?math==E_{X[n-1]}[ln(C_{n-1} %2B \sum_{k=1}^{K}\hat{p}_{nk}ln(\gamma_{n0} %2B \gamma_{nk}(M_{k} %2B 1))]">
 </p>
 
-Računanje take
-Verjetnosti ocenimo z uporabo `bayesove statistike`, katere natančen opis se lahko najde na [wiki](https://en.wikipedia.org/wiki/Bayesian_inference). Osnovna ideja ocenjevanja parametrov z bayesovo statistiko je, da se za cenilko parametra uporabi pričakovano vrednost ocenjevanega parametra iz aposteriorne gostote. Aposteriorna gostota je sestavljena iz apriorne gostote, ki predstavlja naše predhodno prepričanje o ocenjevanem parametru in iz vzorčne gostote (X | p). Torej aposteriorna gostota je oblike
+
+V prehodu v zadnjo vrstico smo ocenili verjetnosti z uporabo `bayesove statistike`, katere natančen opis se lahko najde na [wiki](https://en.wikipedia.org/wiki/Bayesian_inference). Osnovna ideja ocenjevanja parametrov z bayesovo statistiko je, da se za cenilko parametra uporabi pričakovano vrednost ocenjevanega parametra iz aposteriorne gostote. Aposteriorna gostota je sestavljena iz apriorne gostote, ki predstavlja naše predhodno prepričanje o ocenjevanem parametru in iz vzorčne gostote (X | p). Torej aposteriorna gostota je oblike
 
 <p align="center">
   <img src="https://render.githubusercontent.com/render/math?math=\pi(p|x)=\frac{f(x|p)\pi(p)}{m(x)}.">
