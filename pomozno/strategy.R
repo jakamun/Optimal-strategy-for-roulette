@@ -24,13 +24,20 @@ gama_0 <- function(table){
   return(c(gama_0, n))
 }
 
-strategy <- function(table, gama_r, r) {
+gamas <- function(table, gama_r, r) {
   prob <- table$prob[1:r]
   payoff <- table$payoff[1:r]
   gama_k <- prob - gama_r/(payoff + 1)
   nuls <- rep(0, nrow(table) - r)
   gama_k <- c(gama_k, nuls)
   return(gama_k)
+}
+
+strategy <- function(numbers, probability, payoff) {
+  table <- reindex(numbers, probability, payoff)
+  gama_r <- gama_0(table)
+  gamas <- gamas(table, gama_r[1], gama_r[2])
+  return(gamas)
 }
 
 # dobro da se naredi vse skupaj ne da je treba klicat 4 funkcije naenkrat

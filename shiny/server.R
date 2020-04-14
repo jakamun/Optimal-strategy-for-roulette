@@ -71,11 +71,15 @@ shinyServer(function(input, output, session) {
   output$start <- eventReactive(input$apply, # treba še za load file naredit funkcijo, ki preveri, kaj je uporabnik vnesu in uvozi te podatke 
                                 paste("You are going to continue with ", typeof(input$load)))
   
-  rollnumber <- function() {
-    ruleta <- roulette() 
-    verjetnosti <- c(1:38) / sum(1:38)
-    rand <- sample(1:38, 1, prob = verjetnosti)
-    return(ruleta[rand,])
+  miza <- unfair_roulete()
+  
+  miza$strategy <- strategy(miza$num, miza$prob, 35)
+  
+  output$strategy <- renderTable(miza)
+  
+  rollnumber <- function(miza) {
+    rand <- sample(1:38, 1, prob = miza$prob)
+    return(miza[rand,])
   }
   
   dobitek <- function(bets, rol_col, rol_num, even) {
@@ -102,7 +106,7 @@ shinyServer(function(input, output, session) {
   }
   
   observeEvent(input$spin, {
-    st <- rollnumber()
+    st <- rollnumber(miza)
     rolled$number <- st$num
     rolled$color <- st$color
     rolled$oddEven <- odd_even(paste(st$num))

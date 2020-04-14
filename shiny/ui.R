@@ -37,7 +37,8 @@ shinyUI(fluidPage(theme = shinytheme("slate"),
       actionButton("spin", "Spin the wheel")
     ),
     mainPanel(
-      tableOutput("bets")
+      column(6, tableOutput("bets")),
+      column(6, tableOutput("strategy"))
     )
   ),
  verticalLayout(
