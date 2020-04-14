@@ -61,7 +61,7 @@ Problem lahko ločimo na dva primera. Na primer, ko poznamo verjetnosti in prime
 
 ### Optimalna strategija za znane verjetnosti
 
-Če poznamo verjetnosti potem igramo ves čas z enako strategijo, torej na posamezne številke v vsaki igri stavimo enake deleže denarja, saj se nam tekom igre ne razkrivajo nove informacije o verjetnostih in zato ne rabimo spreminjati strategije. Za izračun optimalne strategije uporabimo [Kellyev kriterij](https://en.wikipedia.org/wiki/Kelly_criterion), ki pravi, da je bolje maksimizirati pričakovano vrednost logaritma dobička, kot pa zgolj dobiček. Na tak način skoraj gotovo na dolgi rok pridemo do večjega dobička, kot pa s katero koli drugo metodo. V našem primeru je potrebno maksimizirati
+Če poznamo verjetnosti potem igramo ves čas z enako strategijo, torej na posamezne številke v vsaki igri stavimo enake deleže denarja, saj se nam tekom igre ne razkrivajo nove informacije o verjetnostih in zato ne rabimo spreminjati strategije. Za izračun optimalne strategije uporabimo [Kellyev kriterij](https://en.wikipedia.org/wiki/Kelly_criterion), ki pravi, da je najbolje maksimizirati pričakovano vrednost logaritma dobička. Na tak način skoraj gotovo na dolgi rok pridemo do večjega dobička, kot pa s katero koli drugo metodo. V našem primeru je potrebno maksimizirati
 
 <p align="center">
   <img src="https://render.githubusercontent.com/render/math?math=E(ln(\prod_{k=1}^{K}(\gamma_{0} %2B (M_k %2B 1)\gamma_{k})^{X_k}))=\sum_{k=1}^Kp_{k}ln(\gamma_0 %2B (M_k %2B 1)\gamma_k).">
@@ -70,13 +70,7 @@ Problem lahko ločimo na dva primera. Na primer, ko poznamo verjetnosti in prime
 Pri čemer je potrebno upoštevati še dva pogoja <img src="https://render.githubusercontent.com/render/math?math=\gamma_k\geq 0"> za k=0,1,...,K in <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=0}^K\gamma_k=1">. Z uporabo Kuhn-Tucker-jevega izreka dobimo maksimalno pričakovano vrednost logaritma ene igre
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=1}^{r}p_{k}ln(p_{k}(M_{k} %2B 1)) %2B p_{0}ln(\gamma_{0}).">
-</p>
-
-Kjer je 
-
-<p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=p_{0} = \sum_{k=r %2B 1}^{K} p_{k},">
+  <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=1}^{r}p_{k}ln(p_{k}(M_{k} %2B 1)) %2B \sum_{k=r %2B 1}^{K} p_{k}ln(\gamma_{0}).">
 </p>
 
 Za določitev r-ja je potrebno najprej urediti in reindeksirati vse možne stave v tak vrstni red, da velja spodnje 
@@ -103,11 +97,9 @@ Tako je <img src="https://render.githubusercontent.com/render/math?math=\gamma_0
   <img src="https://render.githubusercontent.com/render/math?math=\gamma_{k} = p_{k} - \frac{\gamma_{0}}{M_{k} %2B 1}.">
 </p>
 
-
-
 #### Pričakovana vrednost in varianca
 
-Pričakovana vrednost dobička po n igrah je zaradi neodvisnosti posameznih iger med sabo enaka
+Vedno je dobro vedeti kakšne dobičke lahko pričakujemo v povprečju in koliko bodo variirali med posameznimi igrami. Pričakovana vrednost dobička po n igrah je zaradi neodvisnosti posameznih iger med sabo enaka
 
 <p align="center">
   <img src="https://render.githubusercontent.com/render/math?math=E(C_{n}/C_{0})=[E(C_{1}/C_{0})]^{n}=[E(\gamma_{0}%2B\sum_{k=1}^{K}\gamma_{k}(M_{k} %2B 1)X_{ik})]^{n}.">
@@ -126,6 +118,7 @@ kjer je
 </p>
 
 V praksi je lahko varianca oz. standardna deviacija zelo velika v primerjavi z pričakovano vrednostjo. Zato lahko pri igranju iste rulete, kdaj priigramo veliko denarja, kdaj pa zelo malo ali celo izgubimo.
+
 
 #### Primer
 
@@ -167,13 +160,20 @@ Vidimo, da pričakovana vrednost raste eksponentno, kar je zelo dobro za igralca
 
 Seveda v realnem svetu ni za pričakovati, da bomo poznali verjetnosti posameznih števil. Zato je potrebno poiskati novo optimalno strategijo za n iger, ko ne poznamo verjetnosti <img src="https://render.githubusercontent.com/render/math?math=\gamma[n]=(\gamma_{1},\dots ,\gamma_{n})^{(K %2B 1)\times n}">. Kot lahko opazimo iz oznake imamo v vsaki igri novo strategijo, ki jo postavimo na podlagi prejšnjih iger. Izkaže se, da strategijo v vsaki igri določimo na enak način, kot smo jo določili pri poznani verjetnosti s to razliko, da moramo verjetnosti sedaj oceniti. Verjetnosti v vsaki igri ocenimo znova z upoštevanje števil, ki so padla v prejšnjih igrah.
 
+Osnoven problem je maksmizacija pričakovane vrednosti logaritma dobička po n igrah pri nepoznanih verjetnostih
+
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=E_{p}[E_{X[n] | p}[ln(C_{n}(\gamma[n],X[n]))]].">
+</p>
+
+Računanje take
 Verjetnosti ocenimo z uporabo `bayesove statistike`, katere natančen opis se lahko najde na [wiki](https://en.wikipedia.org/wiki/Bayesian_inference). Osnovna ideja ocenjevanja parametrov z bayesovo statistiko je, da se za cenilko parametra uporabi pričakovano vrednost ocenjevanega parametra iz aposteriorne gostote. Aposteriorna gostota je sestavljena iz apriorne gostote, ki predstavlja naše predhodno prepričanje o ocenjevanem parametru in iz vzorčne gostote (X | p). Torej aposteriorna gostota je oblike
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=\pi(p|x)=f(x|p)\pi(p).">
+  <img src="https://render.githubusercontent.com/render/math?math=\pi(p|x)=\format{f(x|p)\pi(p)}{m(x)}.">
 </p>
 
-Ker so (X | p) porazdeljeni multinomsko je naravno izbrati apriorno porazdelitev tako, ki je podobna multinomski porazdelitvi. Takšna porazdelitev je dirichletova porazdelitev
+Tu je m(x) zgolj neka normalizacijska konstanta, da se aposteriorna gostota z integrira v 1. Ker je (X | p) porazdeljen multinomsko je naravno izbrati apriorno porazdelitev tako, ki je podobna multinomski porazdelitvi. Takšna porazdelitev je dirichletova porazdelitev
 
 <p align="center">
   <img src="https://render.githubusercontent.com/render/math?math=f_{p}(p)=\frac{\Gamma(\alpha_{%2B})}{\Gamma(\alpha_{1})\cdots\Gamma(\alpha_K)}p_{1}^{\alpha_{1}-1}\cdots p_{K}^{\alpha_{K}-1},">
@@ -186,7 +186,7 @@ kjer je
   <img src="https://render.githubusercontent.com/render/math?math=\alpha_{%2B}=\sum_{j=1}^{K}\alpha_{j}.">
 </p>
 
-Ko poznamo apriorno gostoto in vzorčno gostoto ni težko izračunati tudi aposteriorno gostoto, s katero potem izračunamo pričakovano vrednost verjetnosti v n-ti igri. Cenilka verjetnosti v n-ti igri za k-to številko je
+Ko poznamo apriorno gostoto in vzorčno gostoto ni težko izračunati aposteriorne gostote, s katero potem izračunamo pričakovano vrednost verjetnosti v n-ti igri. Cenilka verjetnosti v n-ti igri za k-to številko je
 
 <p align="center">
   <img src="https://render.githubusercontent.com/render/math?math=\hat{p}_{n,k}=E(p_k|X[n-1])=\frac{\alpha_k %2B S_k[n-1]}{\alpha_{%2B}%2B n-1}.">
