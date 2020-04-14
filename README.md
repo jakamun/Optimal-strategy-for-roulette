@@ -170,7 +170,7 @@ Računanje take
 Verjetnosti ocenimo z uporabo `bayesove statistike`, katere natančen opis se lahko najde na [wiki](https://en.wikipedia.org/wiki/Bayesian_inference). Osnovna ideja ocenjevanja parametrov z bayesovo statistiko je, da se za cenilko parametra uporabi pričakovano vrednost ocenjevanega parametra iz aposteriorne gostote. Aposteriorna gostota je sestavljena iz apriorne gostote, ki predstavlja naše predhodno prepričanje o ocenjevanem parametru in iz vzorčne gostote (X | p). Torej aposteriorna gostota je oblike
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=\pi(p|x)=\format{f(x|p)\pi(p)}{m(x)}.">
+  <img src="https://render.githubusercontent.com/render/math?math=\pi(p|x)=\frac{f(x|p)\pi(p)}{m(x)}.">
 </p>
 
 Tu je m(x) zgolj neka normalizacijska konstanta, da se aposteriorna gostota z integrira v 1. Ker je (X | p) porazdeljen multinomsko je naravno izbrati apriorno porazdelitev tako, ki je podobna multinomski porazdelitvi. Takšna porazdelitev je dirichletova porazdelitev
