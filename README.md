@@ -15,7 +15,7 @@ Igra rulete poteka tako, da igralec stavi na številke ali posamezne skupine št
 Stavimo lahko na vsa polja, ki so prikazana na mizi. Prav tako lahko stavimo še na posebne kombinacije številk, ki so na mizi sosede ali se nahajajo v istem stolpcu ali vrstici. Stave delimo na notranje stave in zunanje stave. Ta analogija temelji na tem kje na mizi se nahaja polje na katerega stavimo. Notranje stave so vse stave na številke in njihove kombinacije z sosedi, medtem ko so zunanje stave stave na polja, ki se nahajajo ob robu mize, npr. stava na barvo. 
 
 Vse možne notranje stave:
-- Stava na **posamično število**;
+- Stava na **posamezno število**;
 - Stava na kakršen koli **par števil**, ki sta na mizi sosedi, npr. 3 in 6;
 - Stava na **stolpec števil** oz. na **tri števila** hkrati, npr. 1, 2 in 3;
 - Stava na kombinacijo **štirih števil**, ki so na mizi sosede, npr. 2, 5, 3 in 6;
@@ -57,23 +57,17 @@ Z <img src="https://render.githubusercontent.com/render/math?math=M_k"> bomo ozn
 <img src="https://render.githubusercontent.com/render/math?math=C_n = C_{n-1}(\gamma_{n0} %2B \sum_{j=1}^K\gamma_{nj}(M_k %2B 1)X_{nj})=C_0\prod_{i=1}^n(\gamma_{i0} %2B \sum_{j=1}^K\gamma_{ij}(M_k %2B 1)X_{ij}).">
 </p>
 
-Problem lahko ločimo na dva primera. Na primer, ko poznamo verjetnosti in primer, ko ne poznamo verjetnosti. Izkaže se, da je strategija, ki jo izoblikujemo pri poznanih verjetnostih enaka, kot ko ne poznamo verjetnosti s to razliko, da pri nepoznanih verjetnostih vedno znova ocenimo verjetnosti na podlagi informacij iz preteklih iger.
+Problem lahko ločimo na dva primera. Na primer, ko poznamo verjetnosti in primer, ko ne poznamo verjetnosti. Izkaže se, da je strategija, ki jo izoblikujemo pri poznanih verjetnostih enaka kot v primeru, ko ne poznamo verjetnosti s to razliko, da pri nepoznanih verjetnostih vedno znova ocenimo verjetnosti na podlagi informacij iz preteklih iger.
 
 ### Optimalna strategija za znane verjetnosti
 
-Če poznamo verjetnosti potem igramo ves čas z enako strategijo, torej na posamezne številke v vsaki igri stavimo enake deleže denarja, saj se nam tekom igre ne razkrivajo nove informacije o verjetnostih in zato ne rabimo spreminjati strategije. Za izračun optimalne strategije potrebujemo najprej urediti in reindeksirati vse možne stave v tak vrstni red, da velja
+Če poznamo verjetnosti potem igramo ves čas z enako strategijo, torej na posamezne številke v vsaki igri stavimo enake deleže denarja, saj se nam tekom igre ne razkrivajo nove informacije o verjetnostih in zato ne rabimo spreminjati strategije. Za izračun optimalne strategije je potrebno maksimizirati pričakovano vrednost logaritma dobitka
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=p_{1}(M_{1}%2B 1)\geq p_{2}(M_{2}%2B 1)\geq \dots\geq p_{K}(M_{K}%2B 1).">
+  <img src="https://render.githubusercontent.com/render/math?math=E(ln(\prod_{k=1}^{K}(\gamma_{0} %2B (M_k %2B 1)\gamma_{k})^{X_k}))=\sum_{k=1}^Kp_{k}ln(\gamma_0 %2B (M_k %2B 1)\gamma_k).">
 </p>
 
-Za izračun optimalne strategije je potrebno maksimizirati pričakovano vrednost logaritma dobitka
-
-<p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=1}^Kp_{k}ln(\gamma_0 %2B (M_k %2B 1)\gamma_k).">
-</p>
-
-Pri tem je potrebno upoštevati še dva pogoja <img src="https://render.githubusercontent.com/render/math?math=\gamma_k\geq 0"> za k=0,1,...,K in <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=0}^K\gamma_k=1">. Z uporabo Kuhn_Tucker-jevih pogojev dobimo maksimalno pričakovano vrednost logaritma ene igre
+Pri čemer je potrebno upoštevati še dva pogoja <img src="https://render.githubusercontent.com/render/math?math=\gamma_k\geq 0"> za k=0,1,...,K in <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=0}^K\gamma_k=1">. Z uporabo Kuhn-Tucker-jevega izreka dobimo maksimalno pričakovano vrednost logaritma ene igre
 
 <p align="center">
   <img src="https://render.githubusercontent.com/render/math?math=\sum_{k=1}^{r}p_{k}ln(p_{k}(M_{k} %2B 1)) %2B p_{0}ln(\gamma_{0}).">
@@ -85,7 +79,13 @@ Kjer je
   <img src="https://render.githubusercontent.com/render/math?math=p_{0} = \sum_{k=r %2B 1}^{K} p_{k},">
 </p>
 
-`r` pa je največje število za katero veljata naslednja pogoja
+Za določitev r-ja je potrebno najprej urediti in reindeksirati vse možne stave v tak vrstni red, da velja spodnje 
+
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=p_{1}(M_{1}%2B 1)\geq p_{2}(M_{2}%2B 1)\geq \dots\geq p_{K}(M_{K}%2B 1).">
+</p>
+
+Nato za `r` velja da je to največje število za katero veljata naslednja pogoja
 
 <p align="center">
   <img src="https://render.githubusercontent.com/render/math?math=1 - \sum_{k=1}^{r} \frac{1}{M_{k} %2B 1} > 0"> <br />
@@ -102,6 +102,8 @@ Tako je <img src="https://render.githubusercontent.com/render/math?math=\gamma_0
 <p align="center">
   <img src="https://render.githubusercontent.com/render/math?math=\gamma_{k} = p_{k} - \frac{\gamma_{0}}{M_{k} %2B 1}.">
 </p>
+
+
 
 #### Pričakovana vrednost in varianca
 
