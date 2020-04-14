@@ -168,6 +168,7 @@ Seveda v realnem svetu ni za pričakovati, da bomo poznali verjetnosti posamezni
   <img src="https://render.githubusercontent.com/render/math?math==E_{X[n-1]}[ln(C_{n-1} %2B \sum_{k=1}^{K}\hat{p}_{nk}ln(\gamma_{n0} %2B \gamma_{nk}(M_{k} %2B 1))]">
 </p>
 
+Vidimo, da je v zadnji vrstici zapisan isti maksimizacijski problem, kot smo ga imeli, pri poznanih verjetnostih v tem primeru pa imamo neko oceno verjetnosti. Iz tega sledi, da je strategija enaka, kot je bila v primeru znanih verjetnosti, le da se v vsakem koraku verjetnosti ponovno ocenijo.
 
 V prehodu v zadnjo vrstico smo ocenili verjetnosti z uporabo `bayesove statistike`, katere natančen opis se lahko najde na [wiki](https://en.wikipedia.org/wiki/Bayesian_inference). Osnovna ideja ocenjevanja parametrov z bayesovo statistiko je, da se za cenilko parametra uporabi pričakovano vrednost ocenjevanega parametra iz aposteriorne gostote. Aposteriorna gostota je sestavljena iz apriorne gostote, ki predstavlja naše predhodno prepričanje o ocenjevanem parametru in iz vzorčne gostote (X | p). Torej aposteriorna gostota je oblike
 
@@ -200,9 +201,7 @@ kjer je:
   <img src="https://render.githubusercontent.com/render/math?math=S[0]=0">
 </p>
 
-Prav tako v vsakem koraku strategijo stavljenja zgolj ocenjujemo. Temu je tako, ker ne poznamo dejanskih verjetnosti temveč uporabljamo zgolj njihove ocene, zato je uporabljena strategija v vsakem koraku zgolj ocena prave strategije. 
-
-Je pa cenilka verjetnosti, in posledično tudi cenilka strategije, dosledna, kar pomeni, da če pošljemo n oz. število iger v neskončno dobimo pravo vrednost verjetnosti in strategije. Tudi pričakovana vrednost logaritma dobička konvergira proti vrednosti, ki smo jo izračunali kot maksimalno v primeru poznanih verjetnosti.
+Ker pri določanju strategije uporabljamo ocene verjetnosti in ne dejanskih verjetnosti je tudi strategija zgolj ocena dejanske strategije. Je pa cenilka verjetnosti, in posledično tudi cenilka strategije, dosledna, kar pomeni, da če pošljemo n oz. število iger v neskončno dobimo pravo vrednost verjetnosti in strategije. Tudi pričakovana vrednost logaritma dobička konvergira proti vrednosti, ki smo jo izračunali kot maksimalno v primeru poznanih verjetnosti.
 
 #### Nasveti in komentarji
 
