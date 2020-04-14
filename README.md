@@ -61,7 +61,7 @@ Problem lahko ločimo na dva primera. Na primer, ko poznamo verjetnosti in prime
 
 ### Optimalna strategija za znane verjetnosti
 
-Če poznamo verjetnosti potem igramo ves čas z enako strategijo, torej na posamezne številke v vsaki igri stavimo enake deleže denarja, saj se nam tekom igre ne razkrivajo nove informacije o verjetnostih in zato ne rabimo spreminjati strategije. Za izračun optimalne strategije je potrebno maksimizirati pričakovano vrednost logaritma dobitka
+Če poznamo verjetnosti potem igramo ves čas z enako strategijo, torej na posamezne številke v vsaki igri stavimo enake deleže denarja, saj se nam tekom igre ne razkrivajo nove informacije o verjetnostih in zato ne rabimo spreminjati strategije. Za izračun optimalne strategije uporabimo [Kellyev kriterij](https://en.wikipedia.org/wiki/Kelly_criterion), ki pravi, da je bolje maksimizirati pričakovano vrednost logaritma dobička, kot pa zgolj dobiček. Na tak način skoraj gotovo na dolgi rok pridemo do večjega dobička, kot pa s katero koli drugo metodo. V našem primeru je potrebno maksimizirati
 
 <p align="center">
   <img src="https://render.githubusercontent.com/render/math?math=E(ln(\prod_{k=1}^{K}(\gamma_{0} %2B (M_k %2B 1)\gamma_{k})^{X_k}))=\sum_{k=1}^Kp_{k}ln(\gamma_0 %2B (M_k %2B 1)\gamma_k).">
