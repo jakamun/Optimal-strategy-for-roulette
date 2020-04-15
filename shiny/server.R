@@ -73,7 +73,15 @@ shinyServer(function(input, output, session) {
   
   miza <- unfair_roulete()
   
-  miza$strategy <- strategy(miza$num, miza$prob, 35)
+  miza <- reindex(miza$num, miza$prob, 35)
+  
+  gama_r <- gama_0(miza)
+  
+  miza$strategy <- gamas(miza, gama_r[1], gama_r[2])
+  
+  miza$ord <- NULL
+  
+  #miza$strategy <- strategy(miza$num, miza$prob, 35)
   
   output$strategy <- renderTable(miza)
   
