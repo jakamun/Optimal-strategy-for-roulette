@@ -7,7 +7,7 @@ shinyServer(function(input, output, session) {
   stave <- reactiveValues(table = data.frame(segment = character(), onWhat = character(), 
                                              amount = numeric(), return = integer(), stringsAsFactors=FALSE))
   
-  rolled <- reactiveValues(number = NULL, color = NULL, oddEven = NULL)
+  rolled <- reactiveValues(miza = NULL)
   
   ret <- reactive({
     switch(input$segment,
@@ -17,6 +17,7 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$bet, {
+    money$value <- money$value - input$amount
     stava <- list(input$segment, input$betOnWhat, input$amount, ret())
     stave$table[nrow(stave$table) + 1, ] <- stava
   })
@@ -24,6 +25,33 @@ shinyServer(function(input, output, session) {
   observeEvent(input$clear, {
     stave$table <- stave$table[0,]
   })
+  
+  observeEvent(input$apply, {
+    rolled$miza <- unfair_roulete(input$type)
+  })
+  
+  #####################################################################
+  ##### strategijo treba spreminjat glede na kaj si izbereš
+  ##################################################
+  ##### oz., da kar sam pove kere segmente naj si izberem
+  #########################################################
+  miza1 <- observeEvent(input$set, {
+    rolled$miza <- reindex(rolled$miza$num, rolled$miza$prob, ret)
+    gama_r <- gama_0(rolled$miza)
+    rolled$miza$strategy <- gamas(rolled$miza, gama_r[1], gama_r[2])
+    rolled$miza$ord <- NULL
+    output$strategy <- renderTable(rolled$miza)
+  })
+  
+  output$image <- renderImage({
+    list(
+      src = "../images/american-roulette.png",
+    #  width = 1024,
+     # height = 463,
+      contentType = "image/png",
+      alt = "Miza"
+    )
+  }, deleteFile = FALSE)
   
   output$bets <- renderTable(stave$table)
   
@@ -40,15 +68,6 @@ shinyServer(function(input, output, session) {
     sliderInput("amount", "Amount", value = 0, min = 0, max = money$value, step = 1)
   })
   
-  numbers <- c("Green 00", "Green 0", "Red 1", "Black 2", "Red 3", "Black 4", "Red 5", "Black 6",
-               "Red 7", "Black 8", "Red 9", "Black 10", "Black 11", "Red 12", "Black 13", "Red 14", 
-               "Black 15", "Red 16", "Black 17", "Red 18", "Red 19", "Black 20", "Red 21",
-               "Black 22", "Red 23", "Black 24", "Red 25", "Black 26", "Red 27", "Black 28", "Black29",
-               "Red 30", "Black 31", "Red 32", "Black 33", "Red 34", "Black 35", "Red 36")
-  
-  barve <- c("Red", "Black")
-  
-  sodo_liho <- c("Even", "Odd")
   
   choices <- reactive({
     switch(input$segment,
@@ -68,27 +87,12 @@ shinyServer(function(input, output, session) {
     radioButtons(inputId = "betOnWhat", label = label(), choices = choices(), inline = TRUE)
   })
   
-  output$start <- eventReactive(input$apply, # treba še za load file naredit funkcijo, ki preveri, kaj je uporabnik vnesu in uvozi te podatke 
-                                paste("You are going to continue with ", typeof(input$load)))
+  output$start <- eventReactive(input$load, # treba še za load file naredit funkcijo, ki preveri, kaj je uporabnik vnesu in uvozi te podatke 
+                                paste("You are going to continue with ", typeof(input$file)))
   
-  miza <- unfair_roulete()
   
-  miza <- reindex(miza$num, miza$prob, 35)
-  
-  gama_r <- gama_0(miza)
-  
-  miza$strategy <- gamas(miza, gama_r[1], gama_r[2])
-  
-  miza$ord <- NULL
   
   #miza$strategy <- strategy(miza$num, miza$prob, 35)
-  
-  output$strategy <- renderTable(miza)
-  
-  rollnumber <- function(miza) {
-    rand <- sample(1:38, 1, prob = miza$prob)
-    return(miza[rand,])
-  }
   
   dobitek <- function(bets, rol_col, rol_num, even) {
     skupaj <- paste(rol_num, rol_col)
@@ -114,7 +118,8 @@ shinyServer(function(input, output, session) {
   }
   
   observeEvent(input$spin, {
-    st <- rollnumber(miza)
+    rand <- sample(1:nrow(rolled$miza), 1, prob = rolled$miza$prob)
+    st <- rolled$miza[rand,]
     rolled$number <- st$num
     rolled$color <- st$color
     rolled$oddEven <- odd_even(paste(st$num))
