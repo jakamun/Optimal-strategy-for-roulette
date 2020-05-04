@@ -9,11 +9,16 @@ shinyServer(function(input, output, session) {
   
   rolled <- reactiveValues(miza = NULL)
   
-  ret <- reactive({
-    switch(input$segment,
+  multiplier <- function(react) {
+    switch(react,
            "Number" = 35,
            "Color" = 1,
-           "Odd or even" = 1)
+           "Odd or even" = 1
+           )
+  }
+  
+  ret <- reactive({
+    multiplier(input$segment)
   })
   
   observeEvent(input$bet, {
@@ -36,7 +41,7 @@ shinyServer(function(input, output, session) {
   ##### oz., da kar sam pove kere segmente naj si izberem
   #########################################################
   miza1 <- observeEvent(input$set, {
-    rolled$miza <- reindex(rolled$miza$num, rolled$miza$prob, ret)
+    rolled$miza <- reindex(rolled$miza$num, rolled$miza$prob, ret())
     gama_r <- gama_0(rolled$miza)
     rolled$miza$strategy <- gamas(rolled$miza, gama_r[1], gama_r[2])
     rolled$miza$ord <- NULL
@@ -44,13 +49,25 @@ shinyServer(function(input, output, session) {
   })
   
   output$image <- renderImage({
-    list(
-      src = "../images/american-roulette.png",
-    #  width = 1024,
-     # height = 463,
-      contentType = "image/png",
-      alt = "Miza"
-    )
+    if (input$type == "American") {
+      list(
+        src = "../images/american-roulette.png",
+        width = 400,
+        height = 181,
+        contentType = "image/png",
+        alt = "Miza"
+      )
+    }
+    
+    else {
+      list(
+        src = "../images/european-roulette.png",
+        width = 400,
+        height = 181,
+        contentType = "image/png",
+        alt = "Miza"
+      )
+    }
   }, deleteFile = FALSE)
   
   output$bets <- renderTable(stave$table)

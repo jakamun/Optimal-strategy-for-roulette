@@ -50,7 +50,7 @@ shinyUI(navbarPage(theme = shinytheme("slate"),
    sidebarLayout(
      sidebarPanel(
        textOutput("status", inline = TRUE),
-       selectInput("segment", "On what will you bet?", choices = c("Number", "Color", "Odd or even"), selected = "Number"),
+       selectInput("segment", "On what will you bet?", choices = names(izbira_ame), selected = "Number"),
        uiOutput("buttons"),
        uiOutput("slider"),
        actionButton("clear", "Clear all bets"),
