@@ -81,6 +81,8 @@ shinyServer(function(input, output, session) {
   
   output$status <- renderText({sprintf("You have %.0f dollars", money$value)})
   
+  output$noSetup <- renderText("Please set the parameters!")
+  
   output$slider <- renderUI({
     sliderInput("amount", "Amount", value = 0, min = 0, max = money$value, step = 1)
   })
