@@ -49,11 +49,12 @@ shinyServer(function(input, output, session) {
   })
   
   output$image <- renderImage({
-    if (input$type == "American") {
+    # iz drugih razlogov je tako nastavljen, da ce uporabnik izbere American je "FALSE"
+    if (input$type == "FALSE") {
       list(
         src = "../images/american-roulette.png",
-        width = 400,
-        height = 181,
+        width = 500,
+        height = 256,
         contentType = "image/png",
         alt = "Miza"
       )
@@ -62,8 +63,8 @@ shinyServer(function(input, output, session) {
     else {
       list(
         src = "../images/european-roulette.png",
-        width = 400,
-        height = 181,
+        width = 500,
+        height = 256,
         contentType = "image/png",
         alt = "Miza"
       )
@@ -88,11 +89,21 @@ shinyServer(function(input, output, session) {
   })
   
   
+  output$betOn <- renderUI({
+    if (input$type == "FALSE"){
+      checkboxGroupInput("betOn", "I'm going to bet on:", choices = names(multiplier_ame))
+    }
+    else {
+      checkboxGroupInput("betOn", "I'm going to bet on:", choices = names(multiplier_eu)) 
+    }
+  })
+  
+  
   choices <- reactive({
     switch(input$segment,
-           "Number" = numbers,
+           "Number" = numbers_ame,
            "Color" = barve,
-           "Odd or even" = sodo_liho)
+           "Odd or even" = even_odd)
   })
   
   label <- reactive({
