@@ -2,12 +2,69 @@
 
 shinyServer(function(input, output, session) {
   
-  money <- reactiveValues(value = 10) # hisa da zacetnih 10 kreditov
+  # REACTIVE VALUES
+  money <- reactiveValues(amount = 0, cur = NULL) # hisa da zacetnih 10 enot denarja, vseno ali zberemo euro ali dolar
   
+  report <- reactiveValues(money = "", start = "")
+  
+  ######## KAJ S TEM
   stave <- reactiveValues(table = data.frame(segment = character(), onWhat = character(), 
                                              amount = numeric(), return = integer(), stringsAsFactors=FALSE))
+  #############
   
-  rolled <- reactiveValues(miza = NULL)
+  miza <- reactiveValues(miza = NULL, type = NULL)
+  
+  # rest of the code: output, observe Event .... 
+  observeEvent(input$apply, {
+    if(money$amount == 0) {
+      report$start <- paste("You have successfully set the settings!", 
+                            paste0("Type of roullete: ", input$type),
+                            paste0("Currency: ", money$cur),
+                            paste0("Known probabilities:", input$knownProb),
+                            paste0("House has given you starting capital of 10 ", cur_sym(input$currency), "."), sep = "\n")
+    }
+    else {
+     report$start <- paste("You have successfully set the settings!", 
+                            paste0("Type of roullete: ", input$type),
+                            paste0("Currency: ", money$cur),
+                            paste0("Known probabilities:", input$knownProb), sep = "\n")
+    }
+  })
+  
+  
+  observeEvent(input$apply, {
+    if (money$amount == 0) {
+      money$amount <- 10
+      money$cur <- input$currency
+    }
+    else {
+      money$amount <- convert(money$cur, input$currency, money$amount)
+      money$cur <- input$currency
+    }
+  })
+  
+  observeEvent(input$apply, {
+    report$money <- paste0("You have ", sprintf("%.2f", money$amount), cur_sym(input$currency), ".")
+  })
+  
+  
+  observeEvent(input$apply, {
+    miza$type <- input$type
+    miza$miza <- unfair_roulete(checktype(input$type))
+  })
+  
+  observeEvent(input$insert, {money$amount <- money$amount + convert(input$curren, money$cur, as.numeric(input$value))})
+  
+  observeEvent(input$insert, {
+    report$money <- paste(paste0("You inserted ", input$value, cur_sym(input$curren), "."),
+                       paste0("Now you have ", sprintf("%.2f", money$amount), cur_sym(money$cur), "."), sep="\n")
+  })
+  
+  
+  output$start <- renderText({report$start})
+  
+  output$money <- renderText({report$money})
+  
   
   multiplier <- function(react) {
     switch(react,
@@ -31,9 +88,13 @@ shinyServer(function(input, output, session) {
     stave$table <- stave$table[0,]
   })
   
-  observeEvent(input$apply, {
-    rolled$miza <- unfair_roulete(input$type)
+  # ta se odziva glede na to kaj je izbrano v delu kjer se izbira segmente
+  observeEvent(input$segment, {
+    1
   })
+  
+  output$probabilities <- renderTable({as.data.frame(t(miza$miza))})
+  
   
   #####################################################################
   ##### strategijo treba spreminjat glede na kaj si izbereš
@@ -41,16 +102,15 @@ shinyServer(function(input, output, session) {
   ##### oz., da kar sam pove kere segmente naj si izberem
   #########################################################
   miza1 <- observeEvent(input$set, {
-    rolled$miza <- reindex(rolled$miza$num, rolled$miza$prob, ret())
-    gama_r <- gama_0(rolled$miza)
-    rolled$miza$strategy <- gamas(rolled$miza, gama_r[1], gama_r[2])
-    rolled$miza$ord <- NULL
-    output$strategy <- renderTable(rolled$miza)
+    miza$miza <- reindex(miza$miza$num, miza$miza$prob, ret())
+    gama_r <- gama_0(miza$miza)
+    miza$miza$strategy <- gamas(miza$miza, gama_r[1], gama_r[2])
+    miza$miza$ord <- NULL
+    output$strategy <- renderTable(miza$miza)
   })
   
   output$image <- renderImage({
-    # iz drugih razlogov je tako nastavljen, da ce uporabnik izbere American je "FALSE"
-    if (input$type == "FALSE") {
+    if (input$type == "American") {
       list(
         src = "../images/american-roulette.png",
         width = 500,
@@ -73,12 +133,6 @@ shinyServer(function(input, output, session) {
   
   output$bets <- renderTable(stave$table)
   
-  observeEvent(input$insert,{money$cur <- input$currency})
-  
-  observeEvent(input$insert, {money$value <- money$value + as.numeric(input$value)})
-  
-  # trenutno imam tako, da vstavis denar skoz isto valuto, treba nardit tako, da bo skoz ista valuta in se pretvarja skoz v to enoto
-  output$money <- eventReactive(input$insert, paste("You inserted ", input$value, ". Now you have ", money$value))
   
   output$status <- renderText({sprintf("You have %.0f dollars", money$value)})
   
@@ -90,13 +144,15 @@ shinyServer(function(input, output, session) {
   
   
   output$betOn <- renderUI({
-    if (input$type == "FALSE"){
-      checkboxGroupInput("betOn", "I'm going to bet on:", choices = names(multiplier_ame))
+    if (input$type == "American"){
+      selectInput("betOn", "I'm going to bet on:", choices = names(multiplier_ame))
     }
     else {
-      checkboxGroupInput("betOn", "I'm going to bet on:", choices = names(multiplier_eu)) 
+      selectInput("betOn", "I'm going to bet on:", choices = names(multiplier_eu)) 
     }
   })
+  
+  
   
   
   choices <- reactive({
@@ -116,9 +172,7 @@ shinyServer(function(input, output, session) {
   output$buttons <- renderUI({
     radioButtons(inputId = "betOnWhat", label = label(), choices = choices(), inline = TRUE)
   })
-  
-  output$start <- eventReactive(input$load, # treba še za load file naredit funkcijo, ki preveri, kaj je uporabnik vnesu in uvozi te podatke 
-                                paste("You are going to continue with ", typeof(input$file)))
+
   
   
   
@@ -148,17 +202,17 @@ shinyServer(function(input, output, session) {
   }
   
   observeEvent(input$spin, {
-    rand <- sample(1:nrow(rolled$miza), 1, prob = rolled$miza$prob)
-    st <- rolled$miza[rand,]
-    rolled$number <- st$num
-    rolled$color <- st$color
-    rolled$oddEven <- odd_even(paste(st$num))
+    rand <- sample(1:nrow(miza$miza), 1, prob = miza$miza$prob)
+    st <- miza$miza[rand,]
+    miza$number <- st$num
+    miza$color <- st$color
+    miza$oddEven <- odd_even(paste(st$num))
   })
   
-  output$roll <- eventReactive(input$spin, paste(rolled$color, rolled$number))
+  output$roll <- eventReactive(input$spin, paste(miza$color, miza$number))
   
   output$num <- eventReactive(input$spin, 
-                              paste(dobitek(stave(), rolled$color, rolled$number, rolled$oddEven)))
+                              paste(dobitek(stave(), miza$color, miza$number, miza$oddEven)))
                              # dobitek(input$bet, input$number, rollnumber()))
   
   timer <- reactiveVal(10)
