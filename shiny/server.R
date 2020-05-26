@@ -88,12 +88,56 @@ shinyServer(function(input, output, session) {
     stave$table <- stave$table[0,]
   })
   
+  output$betOn <- renderUI({
+    if (input$type == "American"){
+      selectInput("betOn", "I'm going to bet on:", choices = names(multiplier_ame), selected = "Number")
+    }
+    else {
+      selectInput("betOn", "I'm going to bet on:", choices = names(multiplier_eu), selected = "Number") 
+    }
+  })
+  
   # ta se odziva glede na to kaj je izbrano v delu kjer se izbira segmente
   observeEvent(input$segment, {
     1
   })
   
-  output$probabilities <- renderTable({as.data.frame(t(miza$miza))})
+  label <- reactive({
+    switch(input$betOn,
+           "Number" = "Choose numbers", 
+           "Color" = "Choose color",
+           "Odd or even" = "Choose odd/even",
+           "Low or high" = "Choose low/high",
+           "Dozen" = "Choose combinations of 12 numbers",
+           "Row" = "Choose rows",
+           "6 number combination" = "Choose combinations of 6 numbers",
+           "5 number combination" = "Choose combinations of 5 numbers",
+           "4 number combination" = "Choose combinations of 4 numbers",
+           "3 number combination" = "Choose combinations of 3 numbers",
+           "2 number combination" = "Choose combinations of 2 numbers"
+           )
+  })
+ 
+  choices <- reactive({
+    switch(input$betOn,
+           "Number" = if (miza$type == "American") {numbers_ame} else {numbers_eu},
+           "Color" = names(barve),
+           "Odd or even" = names(even_odd),
+           "Low or high" = names(low_high),
+           "Dozen" = names(dozen),
+           "Row" = names(row),
+           "6 number combination" = names(six_num),
+           "5 number combination" = names(five_num),
+           "4 number combination" = if (miza$type == "American") {names(four_num[-1])} else {names(four_num)},
+           "3 number combination" = if (miza$type == "American") {names(three_num_ame)} else {names(three_num_eu)},
+           "2 number combination" = if (miza$type == "American") {names(two_num_ame)} else {names(two_num_eu)})
+  })
+  
+  output$subBetOn <- renderUI({
+    checkboxGroupInput("subBetOn", label = label(), choices = choices(), inline = TRUE)
+  })
+  
+  output$probabilities <- renderTable({miza$miza})
   
   
   #####################################################################
@@ -143,26 +187,16 @@ shinyServer(function(input, output, session) {
   })
   
   
-  output$betOn <- renderUI({
-    if (input$type == "American"){
-      selectInput("betOn", "I'm going to bet on:", choices = names(multiplier_ame))
-    }
-    else {
-      selectInput("betOn", "I'm going to bet on:", choices = names(multiplier_eu)) 
-    }
-  })
   
   
-  
-  
-  choices <- reactive({
+  choices1 <- reactive({
     switch(input$segment,
            "Number" = numbers_ame,
            "Color" = barve,
            "Odd or even" = even_odd)
   })
   
-  label <- reactive({
+  label1 <- reactive({
     switch(input$segment,
            "Number" = "Choose a number", 
            "Color" = "Choose color",
@@ -170,7 +204,7 @@ shinyServer(function(input, output, session) {
   })
   
   output$buttons <- renderUI({
-    radioButtons(inputId = "betOnWhat", label = label(), choices = choices(), inline = TRUE)
+    radioButtons(inputId = "betOnWhat", label = label1(), choices = choices1(), inline = TRUE)
   })
 
   

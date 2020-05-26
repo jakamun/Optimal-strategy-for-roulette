@@ -6,7 +6,8 @@ shinyUI(navbarPage(theme = shinytheme("slate"),
   # Application title
   title = "Optimal roulette strategy",
     tabPanel("Setings",
-      h3("Before you start playing please set some settings.", style = "color:lobster;font-style: italic;font-weight:bold;"),
+       tags$head(tags$style(HTML("h3 { font-style: italic;font-weight:bold;}"))),
+      h3("Before you start playing please set some settings."),
       sidebarLayout(
         sidebarPanel(width = 6,
           radioButtons("type", "What type of roulette do you want to play?", c("European", "American")),
@@ -22,7 +23,7 @@ shinyUI(navbarPage(theme = shinytheme("slate"),
         sidebarLayout(
           sidebarPanel(width = 6,
             radioButtons("curren", "Choose a currency", choices = c("Euro", "Dollar"), inline = TRUE),
-            textInput("value", "How much money do you want to put in?", value = "0"),
+            textInput("value", "How much money do you want to put in?", value = "0.00"),
             actionButton("insert", "Insert")
           ),
           mainPanel(width = 6,
@@ -31,24 +32,35 @@ shinyUI(navbarPage(theme = shinytheme("slate"),
         ))
       ),
   
+ tabPanel("Number combinations",
+          conditionalPanel(condition = "input.apply == '' ", 
+                           fluidRow(column(width=12, align = 'center', inline=TRUE, 
+                                           div(style = "height:20px;font-size: 35px;font-weight:bold;",
+                                               "Please select starting parameters!")))),
+          conditionalPanel(condition = "input.apply != '' ",
+                           fluidRow(h3("Select on what kind of a number combinations do you wish to bet."),
+                                    column(width = 12, align = "center", imageOutput("image")),
+                                    column(width = 12, sidebarPanel(
+                                      textOutput("On what do you want to bet?", inline = TRUE),
+                                      uiOutput("betOn"),
+                                      uiOutput("subBetOn"),
+                                      actionButton("set", "Set")
+                                      )
+                                    ),
+                                    conditionalPanel(condition = "input.knownProb == 'Yes' ",
+                                                     column(width = 12, tableOutput("probabilities")))
+          ))),
+  
  tabPanel("Play it yourself",
           conditionalPanel(condition = "input.apply == '' ", 
                            fluidRow(column(width=12, align = 'center', inline=TRUE, 
                                            div(style = "height:20px;font-size: 35px;font-weight:bold;",
                                               "Please select starting parameters!")))),
           conditionalPanel(condition = "input.apply != '' ", 
-                           verticalLayout(
-                            sidebarLayout( sidebarPanel(
-                              textOutput("On what do you want to bet?", inline = TRUE),
-                              uiOutput("betOn"),
-                              actionButton("set", "Set")
-                            ),
-                            mainPanel(
-                              imageOutput("image")
-                           )),
-                           conditionalPanel(condition = "input.knownProb == Yes",
-                                            column(12, tableOutput("probabilities")))
-                           ),
+                           conditionalPanel(condition = "input.set == '' ",
+                                            fluidRow(column(width=12, align = 'center', inline=TRUE, 
+                                                            div(style = "height:20px;font-size: 35px;font-weight:bold;",
+                                                                "Before you start playing please select number combinations on which you wish to bet.")))),
                            conditionalPanel(condition = "input.set != '' ",
                                            sidebarLayout(
                                              sidebarPanel(
@@ -74,7 +86,11 @@ shinyUI(navbarPage(theme = shinytheme("slate"),
                           ))
           ),
  
- tabPanel(title = "Simulate")
+ tabPanel(title = "Simulate",
+          conditionalPanel(condition = "input.apply == '' ", 
+                           fluidRow(column(width=12, align = 'center', inline=TRUE, 
+                                           div(style = "height:20px;font-size: 35px;font-weight:bold;",
+                                               "Please select starting parameters!")))))
 
 #  fluidRow(
 #    column(12,
