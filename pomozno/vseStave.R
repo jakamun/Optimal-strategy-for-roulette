@@ -31,7 +31,7 @@ six_num <- list("1-6" = c("Red 1", "Black 2", "Red 3", "Black 4", "Red 5", "Blac
                 "7-12" = c("Red 7", "Black 8", "Red 9", "Black 10", "Black 11", "Red 12"),
                 "13-18" = c("Black 13", "Red 14", "Black 15", "Red 16", "Black 17", "Red 18"),
                 "19-24" = c("Red 19", "Black 20", "Red 21", "Black 22", "Red 23", "Black 24"),
-                "25-30" = c("Red 25", "Black 26", "Red 27", "Black 28", "Black29", "Red 30"),
+                "25-30" = c("Red 25", "Black 26", "Red 27", "Black 28", "Black 29", "Red 30"),
                 "31-36" = c("Black 31", "Red 32", "Black 33", "Red 34", "Black 35", "Red 36"))
 
 # prvi elemnt je zgolj v evropski ruleti, ostalo je isto v obeh 

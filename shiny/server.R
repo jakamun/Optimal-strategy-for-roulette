@@ -14,6 +14,12 @@ shinyServer(function(input, output, session) {
   
   miza <- reactiveValues(miza = NULL, type = NULL)
   
+  num_combinations <- reactiveValues(chosenCombinations = data.frame(num_comb_type = character(),
+                                                                     num_comb = character(), 
+                                                                     prob = numeric(), 
+                                                                     multiplier = integer()),
+                                     missing_num = NULL)
+  
   # rest of the code: output, observe Event .... 
   observeEvent(input$apply, {
     if(money$amount == 0) {
@@ -44,14 +50,16 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$apply, {
+    miza$type <- input$type
+    miza$miza <- unfair_roulete(checktype(input$type))
+    num_combinations$chosenCombinations <- NULL
+    num_combinations$missing_num <- miza$miza$num
+  })
+  
+  observeEvent(input$apply, {
     report$money <- paste0("You have ", sprintf("%.2f", money$amount), cur_sym(input$currency), ".")
   })
   
-  
-  observeEvent(input$apply, {
-    miza$type <- input$type
-    miza$miza <- unfair_roulete(checktype(input$type))
-  })
   
   observeEvent(input$insert, {money$amount <- money$amount + convert(input$curren, money$cur, as.numeric(input$value))})
   
@@ -97,10 +105,6 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  # ta se odziva glede na to kaj je izbrano v delu kjer se izbira segmente
-  observeEvent(input$segment, {
-    1
-  })
   
   label <- reactive({
     switch(input$betOn,
@@ -134,10 +138,47 @@ shinyServer(function(input, output, session) {
   })
   
   output$subBetOn <- renderUI({
-    checkboxGroupInput("subBetOn", label = label(), choices = choices(), inline = TRUE)
+    checkboxGroupInput("subBetOn", label = label(), 
+                       choices = choices(), 
+                       inline = TRUE)
   })
   
-  output$probabilities <- renderTable({miza$miza})
+  tables <- reactive({
+    switch(input$betOn,
+           "Number" = miza$miza,
+           "Color" = segments_distribution(miza$miza, barve),
+           "Odd or even" = segments_distribution(miza$miza, even_odd),
+           "Low or high" = segments_distribution(miza$miza, low_high),
+           "Dozen" = segments_distribution(miza$miza, dozen),
+           "Row" = segments_distribution(miza$miza, row),
+           "6 number combination" = segments_distribution(miza$miza, six_num),
+           "5 number combination" = segments_distribution(miza$miza, five_num),
+           "4 number combination" = if (miza$type == "American") {segments_distribution(miza$miza, four_num[-1])} else {segments_distribution(miza$miza, four_num)},
+           "3 number combination" = if (miza$type == "American") {segments_distribution(miza$miza, three_num_ame)} else {segments_distribution(miza$miza, three_num_eu)},
+           "2 number combination" = if (miza$type == "American") {segments_distribution(miza$miza, two_num_ame)} else {segments_distribution(miza$miza, two_num_eu)})
+  })
+  
+  output$probabilities <- renderTable({ tables() })
+  
+  observeEvent(input$set, {
+    if ((miza$type == "American") & (input$betOn != "Number")) {
+      mul <- multiplier_ame[[input$betOn]]
+      numbers <- unlist(ame_bets[[input$betOn]][input$subBetOn], use.names = FALSE)
+      num_combinations$missing_num <- num_combinations$missing_num[!match(num_combinations$missing_num, numbers, nomatch = FALSE)]
+      print(num_combinations$missing_num)
+      verjetnosti <- merge(tables(), data.frame(combinations = input$subBetOn))$prob
+      combinations <- data.frame(num_comb_type = input$betOn, num_comb = input$subBetOn, prob = verjetnosti, multiplier = mul)
+      num_combinations$chosenCombinations <- rbind(num_combinations$chosenCombinations, combinations)
+    }
+   # else if ((miza$type == "American") & (input$betOn == "Number")) {
+   #   mul <- multiplier_ame[[input$betOn]]
+   #   numbers <- unlist(ame_bets[[input$betOn]][input$subBetOn], use.names = FALSE)
+   #   num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num == numbers)]
+   # }
+  })
+  
+  
+  output$chooseCombinations <- renderTable({num_combinations$chosenCombinations})
   
   
   #####################################################################
@@ -145,7 +186,7 @@ shinyServer(function(input, output, session) {
   ##################################################
   ##### oz., da kar sam pove kere segmente naj si izberem
   #########################################################
-  miza1 <- observeEvent(input$set, {
+  miza1 <- observeEvent(input$set1, {
     miza$miza <- reindex(miza$miza$num, miza$miza$prob, ret())
     gama_r <- gama_0(miza$miza)
     miza$miza$strategy <- gamas(miza$miza, gama_r[1], gama_r[2])
@@ -209,8 +250,6 @@ shinyServer(function(input, output, session) {
 
   
   
-  
-  #miza$strategy <- strategy(miza$num, miza$prob, 35)
   
   dobitek <- function(bets, rol_col, rol_num, even) {
     skupaj <- paste(rol_num, rol_col)
