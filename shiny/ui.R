@@ -45,7 +45,8 @@ shinyUI(navbarPage(theme = shinytheme("slate"),
                                       uiOutput("betOn"),
                                       uiOutput("subBetOn"),
                                       actionButton("set", "Set")
-                                      )
+                                      ),
+                                    column(width = 12, tableOutput("chooseCombinations"))
                                     ),
                                     conditionalPanel(condition = "input.knownProb == 'Yes' ",
                                                      column(width = 12, tableOutput("probabilities")))
