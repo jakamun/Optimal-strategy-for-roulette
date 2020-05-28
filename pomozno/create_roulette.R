@@ -22,7 +22,7 @@ segments_distribution <- function(miza, seg_list) {
   prob <- c()
   for (i in names) {
     val <- seg_list[[i]]
-    seg_miza <- merge(m, data.frame(num = val))
+    seg_miza <- merge(miza, data.frame(num = val))
     prob <- c(prob, sum(seg_miza$prob))
   }
   seg_miza <- data.frame(combinations = names, prob = prob)

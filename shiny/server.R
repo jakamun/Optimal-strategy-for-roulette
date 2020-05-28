@@ -138,9 +138,11 @@ shinyServer(function(input, output, session) {
   })
   
   output$subBetOn <- renderUI({
-    checkboxGroupInput("subBetOn", label = label(), 
-                       choices = choices(), 
-                       inline = TRUE)
+    pickerInput("subBetOn", label = label(), 
+                       choices = choices(),
+                       selected = choices()[1],
+                       options = list(`actions-box` = TRUE),
+                       multiple = T)
   })
   
   tables <- reactive({
@@ -158,27 +160,65 @@ shinyServer(function(input, output, session) {
            "2 number combination" = if (miza$type == "American") {segments_distribution(miza$miza, two_num_ame)} else {segments_distribution(miza$miza, two_num_eu)})
   })
   
-  output$probabilities <- renderTable({ tables() })
+  output$probabilities <- DT::renderDataTable({ tables() })
   
   observeEvent(input$set, {
     if ((miza$type == "American") & (input$betOn != "Number")) {
       mul <- multiplier_ame[[input$betOn]]
       numbers <- unlist(ame_bets[[input$betOn]][input$subBetOn], use.names = FALSE)
-      num_combinations$missing_num <- num_combinations$missing_num[!match(num_combinations$missing_num, numbers, nomatch = FALSE)]
-      print(num_combinations$missing_num)
+      num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num %in% numbers)]
       verjetnosti <- merge(tables(), data.frame(combinations = input$subBetOn))$prob
       combinations <- data.frame(num_comb_type = input$betOn, num_comb = input$subBetOn, prob = verjetnosti, multiplier = mul)
       num_combinations$chosenCombinations <- rbind(num_combinations$chosenCombinations, combinations)
     }
-   # else if ((miza$type == "American") & (input$betOn == "Number")) {
-   #   mul <- multiplier_ame[[input$betOn]]
-   #   numbers <- unlist(ame_bets[[input$betOn]][input$subBetOn], use.names = FALSE)
-   #   num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num == numbers)]
-   # }
+    else if ((miza$type == "American") & (input$betOn == "Number")) {
+      mul <- multiplier_ame[[input$betOn]]
+      numbers <- input$subBetOn
+      num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num %in% numbers)]
+      verjetnosti <- merge(tables(), data.frame(num = input$subBetOn))$prob
+      combinations <- data.frame(num_comb_type = input$betOn, num_comb = input$subBetOn, prob = verjetnosti, multiplier = mul)
+      num_combinations$chosenCombinations <- rbind(num_combinations$chosenCombinations, combinations)
+    }
+    else if ((miza$type == "European") & (input$betOn == "Number")) {
+      mul <- multiplier_eu[[input$betOn]]
+      numbers <- input$subBetOn
+      num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num %in% numbers)]
+      verjetnosti <- merge(tables(), data.frame(num = input$subBetOn))$prob
+      combinations <- data.frame(num_comb_type = input$betOn, num_comb = input$subBetOn, prob = verjetnosti, multiplier = mul)
+      num_combinations$chosenCombinations <- rbind(num_combinations$chosenCombinations, combinations)
+    }
+    else {
+      mul <- multiplier_eu[[input$betOn]]
+      numbers <- unlist(eu_bets[[input$betOn]][input$subBetOn], use.names = FALSE)
+      num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num %in% numbers)]
+      verjetnosti <- merge(tables(), data.frame(combinations = input$subBetOn))$prob
+      combinations <- data.frame(num_comb_type = input$betOn, num_comb = input$subBetOn, prob = verjetnosti, multiplier = mul)
+      num_combinations$chosenCombinations <- rbind(num_combinations$chosenCombinations, combinations)
+    }
+  })
+  
+  observeEvent(input$clearAllComb, {
+    num_combinations$chosenCombinations <- num_combinations$chosenCombinations[0,]
+  })
+  
+  observeEvent(input$clearComb, {
+    delete <- input$subBetOn
+    num_combinations$chosenCombinations <- num_combinations$chosenCombinations[!(num_combinations$chosenCombinations$num_comb %in% delete),]
   })
   
   
-  output$chooseCombinations <- renderTable({num_combinations$chosenCombinations})
+  output$chooseCombinations <- DT::renderDataTable({
+    if ((is.null(num_combinations$chosenCombinations)) || (nrow(num_combinations$chosenCombinations) == 0)) {
+      NULL
+    }
+    else {
+      num_combinations$chosenCombinations
+    }
+  })
+  
+  output$unchosen <- DT::renderDataTable({
+    miza$miza[miza$miza$num %in% num_combinations$missing_num,]
+  })
   
   
   #####################################################################

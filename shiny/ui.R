@@ -1,7 +1,7 @@
 
 
 # Define UI for application that draws a histogram
-shinyUI(navbarPage(theme = shinytheme("slate"),
+shinyUI(navbarPage(theme = shinytheme("united"),
   
   # Application title
   title = "Optimal roulette strategy",
@@ -33,23 +33,37 @@ shinyUI(navbarPage(theme = shinytheme("slate"),
       ),
   
  tabPanel("Number combinations",
+          tags$head(tags$style(HTML("h3 { font-style: italic;font-weight:bold;}"))),
+          tags$style(HTML("
+              #first {
+                  border: 4px double red;
+              }
+              #second {
+                  border: 2px dashed blue;
+              }
+            ")),
           conditionalPanel(condition = "input.apply == '' ", 
                            fluidRow(column(width=12, align = 'center', inline=TRUE, 
                                            div(style = "height:20px;font-size: 35px;font-weight:bold;",
                                                "Please select starting parameters!")))),
           conditionalPanel(condition = "input.apply != '' ",
                            fluidRow(h3("Select on what kind of a number combinations do you wish to bet."),
-                                    column(width = 12, align = "center", imageOutput("image")),
-                                    column(width = 12, sidebarPanel(
+                                    column(width = 12, align = "center", imageOutput("image"))),
+                           fluidRow(column(width = 6, 
                                       textOutput("On what do you want to bet?", inline = TRUE),
                                       uiOutput("betOn"),
                                       uiOutput("subBetOn"),
+                                      actionButton("clearComb", "Clear selected combinations"),
+                                      actionButton("clearAllComb", "Clear all combinations"),
                                       actionButton("set", "Set")
                                       ),
-                                    column(width = 12, tableOutput("chooseCombinations"))
-                                    ),
-                                    conditionalPanel(condition = "input.knownProb == 'Yes' ",
-                                                     column(width = 12, tableOutput("probabilities")))
+                                    column(width = 12,
+                                           tabsetPanel(
+                                             tabPanel("Probabilities", DT::dataTableOutput("probabilities")),
+                                             tabPanel("Choosen number combinations", DT::dataTableOutput("chooseCombinations")),
+                                             tabPanel("Unchosen numbers", DT::dataTableOutput("unchosen"))
+                                           )
+                                           )
           ))),
   
  tabPanel("Play it yourself",

@@ -4,7 +4,8 @@ library(lubridate)
 library(prob)
 library(dplyr)
 library(png)
-library(jpeg)
+library(shinyWidgets)
+library(DT)
 
 # set working directory
 current_working_dir = dirname(rstudioapi::getActiveDocumentContext()$path)
