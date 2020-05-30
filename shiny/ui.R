@@ -34,14 +34,6 @@ shinyUI(navbarPage(theme = shinytheme("united"),
   
  tabPanel("Number combinations",
           tags$head(tags$style(HTML("h3 { font-style: italic;font-weight:bold;}"))),
-          tags$style(HTML("
-              #first {
-                  border: 4px double red;
-              }
-              #second {
-                  border: 2px dashed blue;
-              }
-            ")),
           conditionalPanel(condition = "input.apply == '' ", 
                            fluidRow(column(width=12, align = 'center', inline=TRUE, 
                                            div(style = "height:20px;font-size: 35px;font-weight:bold;",
@@ -49,7 +41,7 @@ shinyUI(navbarPage(theme = shinytheme("united"),
           conditionalPanel(condition = "input.apply != '' ",
                            fluidRow(h3("Select on what kind of a number combinations do you wish to bet."),
                                     column(width = 12, align = "center", imageOutput("image"))),
-                           fluidRow(column(width = 6, 
+                           fluidRow(column(width = 5,
                                       textOutput("On what do you want to bet?", inline = TRUE),
                                       uiOutput("betOn"),
                                       uiOutput("subBetOn"),
@@ -57,14 +49,27 @@ shinyUI(navbarPage(theme = shinytheme("united"),
                                       actionButton("clearAllComb", "Clear all combinations"),
                                       actionButton("set", "Set")
                                       ),
-                                    column(width = 12,
-                                           tabsetPanel(
-                                             tabPanel("Probabilities", DT::dataTableOutput("probabilities")),
-                                             tabPanel("Choosen number combinations", DT::dataTableOutput("chooseCombinations")),
-                                             tabPanel("Unchosen numbers", DT::dataTableOutput("unchosen"))
-                                           )
-                                           )
-          ))),
+                                    column(width=7,
+                                           verbatimTextOutput("combWarning")
+                                    ),
+                                    column(width=7,
+                                           verbatimTextOutput("combError")
+                                    ),
+                                    column(width = 8,
+                                           conditionalPanel(condition = "input.knownProb == Yes",
+                                                            textInput("alfa", "Select learning rate", value = "0.00")),
+                                           actionButton("calcStrategy", "Calculate optimal strategy")),
+                                    column(width = 4,
+                                           verbatimTextOutput("reportCombinations"))
+                                    ),
+                           tabsetPanel(
+                             #     conditionalPanel(condition = "")
+                             tabPanel("Probabilities", DT::dataTableOutput("probabilities")),
+                             tabPanel("Choosen number combinations", DT::dataTableOutput("chooseCombinations")),
+                             tabPanel("Unchosen numbers", DT::dataTableOutput("unchosen"))
+                           )
+                                           
+          )),
   
  tabPanel("Play it yourself",
           conditionalPanel(condition = "input.apply == '' ", 

@@ -12,7 +12,7 @@ shinyServer(function(input, output, session) {
                                              amount = numeric(), return = integer(), stringsAsFactors=FALSE))
   #############
   
-  miza <- reactiveValues(miza = NULL, type = NULL)
+  miza <- reactiveValues(miza = NULL, type = NULL, alfa = 200)
   
   num_combinations <- reactiveValues(chosenCombinations = data.frame(num_comb_type = character(),
                                                                      num_comb = character(), 
@@ -162,8 +162,60 @@ shinyServer(function(input, output, session) {
   
   output$probabilities <- DT::renderDataTable({ tables() })
   
+  chosenNumbers <- eventReactive(input$subBetOn, {
+    if (input$betOn == "Number") {
+      input$subBetOn
+    }
+    else if (miza$type == "American") {
+      unlist(ame_bets[[input$betOn]][input$subBetOn], use.names = FALSE)
+    } 
+    else {
+      unlist(eu_bets[[input$betOn]][input$subBetOn], use.names = FALSE)
+    }
+  })
+  
+  reportOverlap <- eventReactive(input$subBetOn, {
+    if ((input$betOn == "Number") && (sum(num_combinations$chosenCombinations$num_comb %in% input$subBetOn) > 0)) {
+      overlap <- input$subBetOn[input$subBetOn %in% num_combinations$chosenCombinations$num_comb]
+      paste("You have already selected the following numbers:", paste(overlap, collapse = ", "))
+    }
+    else if (sum(num_combinations$chosenCombinations$num_comb %in% input$subBetOn) > 0) {
+      overlap <- input$subBetOn[input$subBetOn %in% num_combinations$chosenCombinations$num_comb]
+      paste("You have already selected the following combinations:", paste(overlap, collapse = ", "))
+    }
+    else if (sum(chosenNumbers() %in% num_combinations$missing_num) != length(chosenNumbers())) {
+      chosen <- chosenNumbers()
+      overlap <- chosen[!(chosen %in% num_combinations$missing_num)]
+      paste("In other combinations you have already selected the following numbers:", paste(overlap, collapse = ", "))
+    }
+  })
+  
+  output$combWarning <- renderText({reportOverlap()})
+  
+  # to pomebno, če slučajno dvakrat zaporedno pritisnemo set brez da karkoli drugega spreminjamo se ne bo sprožila nobena druga napaka razen ta
+  click <- reactiveValues(clicked_f = 0, comb = "")
+  
   observeEvent(input$set, {
-    if ((miza$type == "American") & (input$betOn != "Number")) {
+    if (is.null(reportOverlap()) && click$clicked_f == 0 && click$comb != input$subBetOn) {
+      click$comb <- input$subBetOn
+      click$clicked_f <- 1
+    }
+    else {
+      click$clicked_f <- 0
+    }
+  })
+  
+  overlapError <- eventReactive(input$set, {
+    if(!is.null(reportOverlap())) {
+      "You have tried to set certain combinations that involve numbers that you already selected."
+    }
+  })
+  
+  output$combError <- renderText({overlapError()})
+  
+  
+  observeEvent(input$set, {
+    if ((miza$type == "American") && (input$betOn != "Number") && (click$clicked_f == 1)) {
       mul <- multiplier_ame[[input$betOn]]
       numbers <- unlist(ame_bets[[input$betOn]][input$subBetOn], use.names = FALSE)
       num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num %in% numbers)]
@@ -171,7 +223,7 @@ shinyServer(function(input, output, session) {
       combinations <- data.frame(num_comb_type = input$betOn, num_comb = input$subBetOn, prob = verjetnosti, multiplier = mul)
       num_combinations$chosenCombinations <- rbind(num_combinations$chosenCombinations, combinations)
     }
-    else if ((miza$type == "American") & (input$betOn == "Number")) {
+    else if ((miza$type == "American") && (input$betOn == "Number") && (click$clicked_f == 1)) {
       mul <- multiplier_ame[[input$betOn]]
       numbers <- input$subBetOn
       num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num %in% numbers)]
@@ -179,7 +231,7 @@ shinyServer(function(input, output, session) {
       combinations <- data.frame(num_comb_type = input$betOn, num_comb = input$subBetOn, prob = verjetnosti, multiplier = mul)
       num_combinations$chosenCombinations <- rbind(num_combinations$chosenCombinations, combinations)
     }
-    else if ((miza$type == "European") & (input$betOn == "Number")) {
+    else if ((miza$type == "European") && (input$betOn == "Number") && (click$clicked_f == 1)) {
       mul <- multiplier_eu[[input$betOn]]
       numbers <- input$subBetOn
       num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num %in% numbers)]
@@ -187,7 +239,7 @@ shinyServer(function(input, output, session) {
       combinations <- data.frame(num_comb_type = input$betOn, num_comb = input$subBetOn, prob = verjetnosti, multiplier = mul)
       num_combinations$chosenCombinations <- rbind(num_combinations$chosenCombinations, combinations)
     }
-    else {
+    else if ((miza$type == "European") && (input$betOn != "Number") && (click$clicked_f == 1)) {
       mul <- multiplier_eu[[input$betOn]]
       numbers <- unlist(eu_bets[[input$betOn]][input$subBetOn], use.names = FALSE)
       num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num %in% numbers)]
@@ -196,6 +248,7 @@ shinyServer(function(input, output, session) {
       num_combinations$chosenCombinations <- rbind(num_combinations$chosenCombinations, combinations)
     }
   })
+  
   
   observeEvent(input$clearAllComb, {
     num_combinations$chosenCombinations <- num_combinations$chosenCombinations[0,]
@@ -219,6 +272,18 @@ shinyServer(function(input, output, session) {
   output$unchosen <- DT::renderDataTable({
     miza$miza[miza$miza$num %in% num_combinations$missing_num,]
   })
+  
+  reportStrategyCalc <- eventReactive(input$calcStrategy, {
+    if (length(num_combinations$missing_num) == 0) {
+      "You have covered all the numbers. Now you can try playing roulette with strategy that algorithm sugests."
+    }
+    else {
+      "You should choose combinations that cover all the numbers."
+    }
+  })
+  
+  output$reportCombinations <- renderText({reportStrategyCalc()})
+  
   
   
   #####################################################################
