@@ -192,27 +192,33 @@ shinyServer(function(input, output, session) {
   
   output$combWarning <- renderText({reportOverlap()})
   
-  # to pomebno, če slučajno dvakrat zaporedno pritisnemo set brez da karkoli drugega spreminjamo se ne bo sprožila nobena druga napaka razen ta
-  click <- reactiveValues(clicked_f = 0, comb = "")
+  click <- reactiveValues(clicked_f = 1, comb = "", error = "")
   
+  # javi uporabniku da poskuša izvesti prepovedane stvari
   observeEvent(input$set, {
-    if (is.null(reportOverlap()) && click$clicked_f == 0 && click$comb != input$subBetOn) {
+    if (is.null(reportOverlap()) && click$comb != input$subBetOn) {
+      click$error <- ""
       click$comb <- input$subBetOn
       click$clicked_f <- 1
     }
     else {
       click$clicked_f <- 0
+      click$error <- "You have tried to set certain combinations that involve numbers that you already selected."
     }
   })
   
-  overlapError <- eventReactive(input$set, {
-    if(!is.null(reportOverlap())) {
-      "You have tried to set certain combinations that involve numbers that you already selected."
+  output$combError <- renderText({click$error})
+  
+  output$note <- renderText({
+    if (input$knownProb == "Yes") {
+      paste("Algorithm will give you optimal strategy only if you cover all the posible numbers.",
+            "It's not a bad idea to select numbers with high probabilities in a way that they will have high payoff.", sep = "\n")
+    }
+    else {
+      paste("Algorithm will give you optimal strategy only if you cover all the posible numbers.",
+            "If you want a high payoff you should select combinations that have high payoff.", sep = "\n")
     }
   })
-  
-  output$combError <- renderText({overlapError()})
-  
   
   observeEvent(input$set, {
     if ((miza$type == "American") && (input$betOn != "Number") && (click$clicked_f == 1)) {
@@ -259,6 +265,14 @@ shinyServer(function(input, output, session) {
     num_combinations$chosenCombinations <- num_combinations$chosenCombinations[!(num_combinations$chosenCombinations$num_comb %in% delete),]
   })
   
+  output$sucess <- renderText({
+    if (length(num_combinations$missing_num) == 0) {
+      paste("Great you have selected all the numbers.", "Algorithm can now calculate optimal strategy.", sep="\n")
+    }
+    else {
+      ""
+    }
+  })
   
   output$chooseCombinations <- DT::renderDataTable({
     if ((is.null(num_combinations$chosenCombinations)) || (nrow(num_combinations$chosenCombinations) == 0)) {
