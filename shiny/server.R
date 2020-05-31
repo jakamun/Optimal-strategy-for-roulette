@@ -2,6 +2,7 @@
 
 shinyServer(function(input, output, session) {
   
+  
   # REACTIVE VALUES
   money <- reactiveValues(amount = 0, cur = NULL) # hisa da zacetnih 10 enot denarja, vseno ali zberemo euro ali dolar
   
@@ -12,13 +13,14 @@ shinyServer(function(input, output, session) {
                                              amount = numeric(), return = integer(), stringsAsFactors=FALSE))
   #############
   
-  miza <- reactiveValues(miza = NULL, type = NULL, alfa = 200)
+  miza <- reactiveValues(miza = NULL, type = NULL, knownProb = NULL)
   
-  num_combinations <- reactiveValues(chosenCombinations = data.frame(num_comb_type = character(),
-                                                                     num_comb = character(), 
-                                                                     prob = numeric(), 
-                                                                     multiplier = integer()),
-                                     missing_num = NULL)
+  num_combinations <- reactiveValues(chosenCombinations = NULL,
+                                     missing_num = NULL,
+                                     calcStrategy = NULL,
+                                     fallen = NULL)
+  
+  click <- reactiveValues(clicked_f = 1, comb = "", error = "")
   
   # rest of the code: output, observe Event .... 
   observeEvent(input$apply, {
@@ -52,9 +54,19 @@ shinyServer(function(input, output, session) {
   observeEvent(input$apply, {
     miza$type <- input$type
     miza$miza <- unfair_roulete(checktype(input$type))
+    miza$knownProb <- input$knownProb
     num_combinations$chosenCombinations <- NULL
+    num_combinations$calcStrategy <- NULL
     num_combinations$missing_num <- miza$miza$num
+    click$clicked_f <- 1
+    click$error <- ""
+    click$comb <- ""
   })
+  
+  output$knownProbNote <- renderText({if (miza$knownProb == 'No') {
+    paste("You're playing roulette with unknown probabilities.", 
+          "If you want to know prabilities you should set this on settings page.", sep = "\n")}
+    })
   
   observeEvent(input$apply, {
     report$money <- paste0("You have ", sprintf("%.2f", money$amount), cur_sym(input$currency), ".")
@@ -72,29 +84,7 @@ shinyServer(function(input, output, session) {
   output$start <- renderText({report$start})
   
   output$money <- renderText({report$money})
-  
-  
-  multiplier <- function(react) {
-    switch(react,
-           "Number" = 35,
-           "Color" = 1,
-           "Odd or even" = 1
-           )
-  }
-  
-  ret <- reactive({
-    multiplier(input$segment)
-  })
-  
-  observeEvent(input$bet, {
-    money$value <- money$value - input$amount
-    stava <- list(input$segment, input$betOnWhat, input$amount, ret())
-    stave$table[nrow(stave$table) + 1, ] <- stava
-  })
-  
-  observeEvent(input$clear, {
-    stave$table <- stave$table[0,]
-  })
+
   
   output$betOn <- renderUI({
     if (input$type == "American"){
@@ -145,6 +135,12 @@ shinyServer(function(input, output, session) {
                        multiple = T)
   })
   
+  output$alfa <- renderUI({
+    if (miza$knownProb == "No") {
+      textInput("alfa", "Select learning rate", value = "200")
+    }
+  })
+  
   tables <- reactive({
     switch(input$betOn,
            "Number" = miza$miza,
@@ -160,7 +156,11 @@ shinyServer(function(input, output, session) {
            "2 number combination" = if (miza$type == "American") {segments_distribution(miza$miza, two_num_ame)} else {segments_distribution(miza$miza, two_num_eu)})
   })
   
-  output$probabilities <- DT::renderDataTable({ tables() })
+  output$probabilities <- DT::renderDataTable({
+    if (miza$knownProb == "Yes") {
+      tables()
+    }
+  })
   
   chosenNumbers <- eventReactive(input$subBetOn, {
     if (input$betOn == "Number") {
@@ -192,7 +192,6 @@ shinyServer(function(input, output, session) {
   
   output$combWarning <- renderText({reportOverlap()})
   
-  click <- reactiveValues(clicked_f = 1, comb = "", error = "")
   
   # javi uporabniku da poskuša izvesti prepovedane stvari
   observeEvent(input$set, {
@@ -227,7 +226,7 @@ shinyServer(function(input, output, session) {
       num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num %in% numbers)]
       verjetnosti <- merge(tables(), data.frame(combinations = input$subBetOn))$prob
       combinations <- data.frame(num_comb_type = input$betOn, num_comb = input$subBetOn, prob = verjetnosti, multiplier = mul)
-      num_combinations$chosenCombinations <- rbind(num_combinations$chosenCombinations, combinations)
+      num_combinations$chosenCombinations <- start_prob_predict(num_combinations$chosenCombinations, combinations, miza$knownProb, input$alfa)
     }
     else if ((miza$type == "American") && (input$betOn == "Number") && (click$clicked_f == 1)) {
       mul <- multiplier_ame[[input$betOn]]
@@ -235,7 +234,7 @@ shinyServer(function(input, output, session) {
       num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num %in% numbers)]
       verjetnosti <- merge(tables(), data.frame(num = input$subBetOn))$prob
       combinations <- data.frame(num_comb_type = input$betOn, num_comb = input$subBetOn, prob = verjetnosti, multiplier = mul)
-      num_combinations$chosenCombinations <- rbind(num_combinations$chosenCombinations, combinations)
+      num_combinations$chosenCombinations <- start_prob_predict(num_combinations$chosenCombinations, combinations, miza$knownProb, input$alfa)
     }
     else if ((miza$type == "European") && (input$betOn == "Number") && (click$clicked_f == 1)) {
       mul <- multiplier_eu[[input$betOn]]
@@ -243,7 +242,7 @@ shinyServer(function(input, output, session) {
       num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num %in% numbers)]
       verjetnosti <- merge(tables(), data.frame(num = input$subBetOn))$prob
       combinations <- data.frame(num_comb_type = input$betOn, num_comb = input$subBetOn, prob = verjetnosti, multiplier = mul)
-      num_combinations$chosenCombinations <- rbind(num_combinations$chosenCombinations, combinations)
+      num_combinations$chosenCombinations <- start_prob_predict(num_combinations$chosenCombinations, combinations, miza$knownProb, input$alfa)
     }
     else if ((miza$type == "European") && (input$betOn != "Number") && (click$clicked_f == 1)) {
       mul <- multiplier_eu[[input$betOn]]
@@ -251,18 +250,26 @@ shinyServer(function(input, output, session) {
       num_combinations$missing_num <- num_combinations$missing_num[!(num_combinations$missing_num %in% numbers)]
       verjetnosti <- merge(tables(), data.frame(combinations = input$subBetOn))$prob
       combinations <- data.frame(num_comb_type = input$betOn, num_comb = input$subBetOn, prob = verjetnosti, multiplier = mul)
-      num_combinations$chosenCombinations <- rbind(num_combinations$chosenCombinations, combinations)
+      num_combinations$chosenCombinations <- start_prob_predict(num_combinations$chosenCombinations, combinations, miza$knownProb, input$alfa)
     }
   })
   
   
   observeEvent(input$clearAllComb, {
-    num_combinations$chosenCombinations <- num_combinations$chosenCombinations[0,]
+    num_combinations$chosenCombinations <- NULL
+    num_combinations$missing_num <- miza$miza$num
+    click$clicked_f <- 1
+    click$error <- ""
+    click$comb <- ""
   })
   
   observeEvent(input$clearComb, {
     delete <- input$subBetOn
     num_combinations$chosenCombinations <- num_combinations$chosenCombinations[!(num_combinations$chosenCombinations$num_comb %in% delete),]
+    num_combinations$missing_num <- c(num_combinations$missing_num, delete)
+    click$clicked_f <- 1
+    click$error <- ""
+    click$comb <- ""
   })
   
   output$sucess <- renderText({
@@ -275,11 +282,16 @@ shinyServer(function(input, output, session) {
   })
   
   output$chooseCombinations <- DT::renderDataTable({
-    if ((is.null(num_combinations$chosenCombinations)) || (nrow(num_combinations$chosenCombinations) == 0)) {
-      NULL
+    if (miza$knownProb == "Yes") {
+      num_combinations$chosenCombinations
     }
     else {
-      num_combinations$chosenCombinations
+      if (is.null(num_combinations$chosenCombinations)) {
+        NULL
+      }
+      else {
+        num_combinations$chosenCombinations %>% select(num_comb_type, num_comb, multiplier, alfa, pred_prob)
+      }
     }
   })
   
@@ -288,15 +300,31 @@ shinyServer(function(input, output, session) {
   })
   
   reportStrategyCalc <- eventReactive(input$calcStrategy, {
-    if (length(num_combinations$missing_num) == 0) {
-      "You have covered all the numbers. Now you can try playing roulette with strategy that algorithm sugests."
+    if (length(num_combinations$missing_num) == 0 && miza$knownProb == "No") {
+      "Algorithm has calculated starting strategy becouse you don't know probabilities strategy will change in each step. You can also test the algorithm with simulation."
+    }
+    else if (length(num_combinations$missing_num) == 0 && miza$knownProb == "Yes") {
+      "Algorithm has calculated the optimal strategy. Now you can test it with simulation or you can play roulette."
     }
     else {
-      "You should choose combinations that cover all the numbers."
+      "You should choose combinations that cover all the numbers. Only then can algorithm calculate optimal strategy."
     }
   })
   
   output$reportCombinations <- renderText({reportStrategyCalc()})
+  
+  observeEvent(input$calcStrategy, {
+    if (miza$knownProb == "Yes") {
+      num_combinations$calcStrategy <- strategy(num_combinations$chosenCombinations)
+      output$strategy1 <- DT::renderDataTable({num_combinations$calcStrategy})
+      output$strategy1 <- DT::renderDataTable({num_combinations$calcStrategy})
+    }
+    else {
+      preCalcTable <- num_combinations$chosenCombinations %>% select(num_comb_type, num_comb, multiplier, prob = pred_prob)
+      num_combinations$calcStrategy <- strategy(preCalcTable)
+      output$strategy1 <- DT::renderDataTable({num_combinations$calcStrategy})
+    }
+  })
   
   
   
@@ -337,6 +365,29 @@ shinyServer(function(input, output, session) {
   
   output$bets <- renderTable(stave$table)
   
+  
+  
+  multiplier <- function(react) {
+    switch(react,
+           "Number" = 35,
+           "Color" = 1,
+           "Odd or even" = 1
+    )
+  }
+  
+  ret <- reactive({
+    multiplier(input$segment)
+  })
+  
+  observeEvent(input$bet, {
+    money$value <- money$value - input$amount
+    stava <- list(input$segment, input$betOnWhat, input$amount, ret())
+    stave$table[nrow(stave$table) + 1, ] <- stava
+  })
+  
+  observeEvent(input$clear, {
+    stave$table <- stave$table[0,]
+  })
   
   output$status <- renderText({sprintf("You have %.0f dollars", money$value)})
   
@@ -407,36 +458,7 @@ shinyServer(function(input, output, session) {
                               paste(dobitek(stave(), miza$color, miza$number, miza$oddEven)))
                              # dobitek(input$bet, input$number, rollnumber()))
   
-  timer <- reactiveVal(10)
-  active <- reactiveVal(FALSE)
   
-  # Output the time left.
-  output$timeleft <- renderText({
-    paste("Time left: ", seconds_to_period(timer()))
-  })
-  
-  # observer that invalidates every second. If timer is active, decrease by one.
-  observe({
-    invalidateLater(1000, session)
-    isolate({
-      if(active())
-      {
-        timer(timer()-1)
-        if(timer()<1)
-        { # ko se čas izteče se požene kolo
-          active(FALSE)
-          showModal(modalDialog(
-            title = "Important message",
-            "Countdown completed!"
-          ))
-        }
-      }
-    })
-  })
-  
-  # observers for actionbuttons
-  observeEvent(input$start, {active(TRUE)})
-  observeEvent(input$stop, {active(FALSE)})
   
   
   

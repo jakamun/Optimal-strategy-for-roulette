@@ -28,3 +28,18 @@ segments_distribution <- function(miza, seg_list) {
   seg_miza <- data.frame(combinations = names, prob = prob)
   seg_miza %>% arrange(desc(prob))
 }
+
+start_prob_predict <- function(old_table, new_table, knowPr, alfa) {
+  if (knowPr == "Yes") {
+    rbind(old_table, new_table)
+  }
+  else {
+    new_table$alfa <- alfa
+    n <- nrow(new_table)
+    new_table$pred_prob <- as.numeric(alfa) / (n*as.numeric(alfa))
+    binded <- rbind(old_table, new_table)
+    alfa1 <- as.numeric(binded$alfa)
+    binded$pred_prob <- alfa1 / (sum(alfa1))
+    binded
+  }
+}
