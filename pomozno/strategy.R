@@ -24,13 +24,17 @@ gama_0 <- function(table){
 }
 
 gamas <- function(table, gama_r, r) {
-  prob <- table$prob[1:r]
-  payoff <- table$multiplier[1:r]
-  gama_k <- prob - gama_r/(payoff + 1)
-  nuls <- rep(0, nrow(table) - r)
-  gama_k <- c(gama_k, nuls)
-  print(gama_k)
-  return(gama_k)
+  if (r > 0) {
+    prob <- table$prob[1:r]
+    payoff <- table$multiplier[1:r]
+    gama_k <- prob - gama_r/(payoff + 1)
+    nuls <- rep(0, nrow(table) - r)
+    gama_k <- c(gama_k, nuls)
+    return(gama_k)
+  }
+  else {
+    return(rep(0, nrow(table)))
+  }
 }
 
 strategy <- function(miza) {
@@ -39,7 +43,6 @@ strategy <- function(miza) {
   gamas <- gamas(table, gama_r[1], gama_r[2])
   table$ord <- NULL
   table$strategy <- gamas
-  print(table)
   return(table)
 }
 

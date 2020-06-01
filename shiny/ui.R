@@ -42,6 +42,15 @@ shinyUI(navbarPage(theme = shinytheme("united"),
           conditionalPanel(condition = "input.apply != '' ",
                            wellPanel(fluidRow(h3("Select on what kind of a number combinations do you wish to bet."),
                                     column(width = 12, align = "center", imageOutput("image")))),
+                           wellPanel(fluidRow(
+                             column(width=12,
+                                    tags$h4("Note:"),
+                                    verbatimTextOutput("note")),
+                             column(width=12,
+                                    conditionalPanel(condition = "output.alfaHint != '' ",
+                                                     tags$h4("Learning rate hint:")),
+                                    verbatimTextOutput("alfaHint"))
+                           )),
                                     wellPanel(sidebarLayout(sidebarPanel(width=5,
                                                               textOutput("On what do you want to bet?", inline = TRUE),
                                                               uiOutput("betOn"),
@@ -53,9 +62,6 @@ shinyUI(navbarPage(theme = shinytheme("united"),
                                                               actionButton("calcStrategy", "Calculate optimal strategy")
                                       ),
                                       mainPanel(width = 7,
-                                                column(width=7,
-                                                       tags$h4("Note:"),
-                                                       verbatimTextOutput("note")),
                                                 column(width=7,
                                                        conditionalPanel(condition = "output.combWarning != '' ",
                                                                         tags$h4("Warning:")),
@@ -74,7 +80,16 @@ shinyUI(navbarPage(theme = shinytheme("united"),
                                                        tags$head(tags$style("#sucess{color: green;}")),
                                                        verbatimTextOutput("sucess")),
                                                 column(width = 7,
-                                                       verbatimTextOutput("reportCombinations"))
+                                                       conditionalPanel(condition = "output.reportCombinations != '' ",
+                                                                        tags$h4("Calculation note:")),
+                                                       tags$head(tags$style("#reportCombinations{color: green;}")),
+                                                       verbatimTextOutput("reportCombinations")),
+                                                column(width = 7,
+                                                       conditionalPanel(condition = "output.calcError != '' ",
+                                                                        tags$h4("Calculation error:")),
+                                                       tags$head(tags$style("#calcError{color: red;}")),
+                                                       verbatimTextOutput("calcError")
+                                                       )
                                     ))),
                            wellPanel(tabsetPanel(
                                      #     conditionalPanel(condition = "")

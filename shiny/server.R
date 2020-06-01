@@ -6,7 +6,7 @@ shinyServer(function(input, output, session) {
   # REACTIVE VALUES
   money <- reactiveValues(amount = 0, cur = NULL) # hisa da zacetnih 10 enot denarja, vseno ali zberemo euro ali dolar
   
-  report <- reactiveValues(money = "", start = "")
+  report <- reactiveValues(money = "", start = "", calc = "", calcError = "")
   
   ######## KAJ S TEM
   stave <- reactiveValues(table = data.frame(segment = character(), onWhat = character(), 
@@ -29,7 +29,8 @@ shinyServer(function(input, output, session) {
                             paste0("Type of roullete: ", input$type),
                             paste0("Currency: ", money$cur),
                             paste0("Known probabilities:", input$knownProb),
-                            paste0("House has given you starting capital of 10 ", cur_sym(input$currency), "."), sep = "\n")
+                            paste0(sprintf("House has given you starting capital of %.2f ", convert("Euro", input$currency, 10)),
+                                   cur_sym(input$currency), "."), sep = "\n")
     }
     else {
      report$start <- paste("You have successfully set the settings!", 
@@ -42,7 +43,7 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$apply, {
     if (money$amount == 0) {
-      money$amount <- 10
+      money$amount <- convert("Euro", input$currency, 10)
       money$cur <- input$currency
     }
     else {
@@ -61,6 +62,8 @@ shinyServer(function(input, output, session) {
     click$clicked_f <- 1
     click$error <- ""
     click$comb <- ""
+    report$calc <- ""
+    report$calcError <- ""
   })
   
   output$knownProbNote <- renderText({if (miza$knownProb == 'No') {
@@ -87,13 +90,35 @@ shinyServer(function(input, output, session) {
 
   
   output$betOn <- renderUI({
-    if (input$type == "American"){
+    if (miza$type == "American"){
       selectInput("betOn", "I'm going to bet on:", choices = names(multiplier_ame), selected = "Number")
     }
     else {
       selectInput("betOn", "I'm going to bet on:", choices = names(multiplier_eu), selected = "Number") 
     }
   })
+  
+  output$image <- renderImage({
+    if (miza$type == "American") {
+      list(
+        src = "../images/american-roulette.png",
+        width = 500,
+        height = 256,
+        contentType = "image/png",
+        alt = "Miza"
+      )
+    }
+    
+    else {
+      list(
+        src = "../images/european-roulette.png",
+        width = 500,
+        height = 256,
+        contentType = "image/png",
+        alt = "Miza"
+      )
+    }
+  }, deleteFile = FALSE)
   
   
   label <- reactive({
@@ -209,13 +234,17 @@ shinyServer(function(input, output, session) {
   output$combError <- renderText({click$error})
   
   output$note <- renderText({
-    if (input$knownProb == "Yes") {
-      paste("Algorithm will give you optimal strategy only if you cover all the posible numbers.",
-            "It's not a bad idea to select numbers with high probabilities in a way that they will have high payoff.", sep = "\n")
+      paste("Algorithm will give you optimal strategy only if you cover all the posible numbers.")
+  })
+  
+  output$alfaHint <- renderText({
+    if (miza$knownProb == "No") {
+      paste("If you set high learning rate, then convergence to right probabilities will be slow.",
+            "If you set low learning rate, then convergence will be fast. But you might converge to wrong probabilities.",
+            "Learning rate should be at least 100 so that algorithm converges to right probabilities.", sep = "\n")
     }
     else {
-      paste("Algorithm will give you optimal strategy only if you cover all the posible numbers.",
-            "If you want a high payoff you should select combinations that have high payoff.", sep = "\n")
+      ""
     }
   })
   
@@ -258,6 +287,9 @@ shinyServer(function(input, output, session) {
   observeEvent(input$clearAllComb, {
     num_combinations$chosenCombinations <- NULL
     num_combinations$missing_num <- miza$miza$num
+    num_combinations$calcStrategy <- NULL
+    report$calc <- ""
+    report$calcError <- ""
     click$clicked_f <- 1
     click$error <- ""
     click$comb <- ""
@@ -267,6 +299,9 @@ shinyServer(function(input, output, session) {
     delete <- input$subBetOn
     num_combinations$chosenCombinations <- num_combinations$chosenCombinations[!(num_combinations$chosenCombinations$num_comb %in% delete),]
     num_combinations$missing_num <- c(num_combinations$missing_num, delete)
+    num_combinations$calcStrategy <- NULL
+    report$calc <- ""
+    report$calcError <- ""
     click$clicked_f <- 1
     click$error <- ""
     click$comb <- ""
@@ -296,35 +331,56 @@ shinyServer(function(input, output, session) {
   })
   
   output$unchosen <- DT::renderDataTable({
-    miza$miza[miza$miza$num %in% num_combinations$missing_num,]
-  })
-  
-  reportStrategyCalc <- eventReactive(input$calcStrategy, {
-    if (length(num_combinations$missing_num) == 0 && miza$knownProb == "No") {
-      "Algorithm has calculated starting strategy becouse you don't know probabilities strategy will change in each step. You can also test the algorithm with simulation."
-    }
-    else if (length(num_combinations$missing_num) == 0 && miza$knownProb == "Yes") {
-      "Algorithm has calculated the optimal strategy. Now you can test it with simulation or you can play roulette."
+    if (miza$knownProb == "Yes") {
+      miza$miza[miza$miza$num %in% num_combinations$missing_num,] 
     }
     else {
-      "You should choose combinations that cover all the numbers. Only then can algorithm calculate optimal strategy."
+      miza$miza[miza$miza$num %in% num_combinations$missing_num,] %>% select(num)
     }
   })
-  
-  output$reportCombinations <- renderText({reportStrategyCalc()})
   
   observeEvent(input$calcStrategy, {
-    if (miza$knownProb == "Yes") {
+    if (miza$knownProb == "Yes" && length(num_combinations$missing_num) == 0) {
       num_combinations$calcStrategy <- strategy(num_combinations$chosenCombinations)
       output$strategy1 <- DT::renderDataTable({num_combinations$calcStrategy})
-      output$strategy1 <- DT::renderDataTable({num_combinations$calcStrategy})
     }
-    else {
+    else if (miza$knownProb == "No" && length(num_combinations$missing_num) == 0) {
       preCalcTable <- num_combinations$chosenCombinations %>% select(num_comb_type, num_comb, multiplier, prob = pred_prob)
-      num_combinations$calcStrategy <- strategy(preCalcTable)
+      num_combinations$calcStrategy <- strategy(preCalcTable) %>% rename(pred_prob = prob)
       output$strategy1 <- DT::renderDataTable({num_combinations$calcStrategy})
     }
   })
+  
+  observeEvent(input$calcStrategy, {
+    if (length(num_combinations$missing_num) == 0 && miza$knownProb == "No") { 
+      report$calc <- paste("Algorithm has calculated starting betting strategy for selected alfas.", 
+                            "Becouse you don't know probabilities strategy will change in each step.",
+                            "You can also test the algorithm with simulation.", sep = "\n")
+    }
+    else if (length(num_combinations$missing_num) == 0 && miza$knownProb == "Yes") {
+      report$calc <- paste("Algorithm has calculated the optimal betting strategy for given probabilities.",
+                            "Now you can test it with simulation or you can use this strategy in game.", sep = "\n")
+    }
+  })
+  
+  observeEvent(input$calcStrategy, {
+    if (length(num_combinations$missing_num) != 0) {
+      report$calcError <- paste("You should choose combinations that cover all the numbers.",
+                                "Only then can algorithm calculate optimal strategy.", sep = "\n")
+    }
+  })
+  
+  observeEvent(input$set, {
+    report$calc <- ""
+    report$calcError <- ""
+  })
+  
+  output$reportCombinations <- renderText({report$calc})
+  
+  output$calcError <- renderText({report$calcError})
+  
+  
+  
   
   
   
@@ -341,27 +397,7 @@ shinyServer(function(input, output, session) {
     output$strategy <- renderTable(miza$miza)
   })
   
-  output$image <- renderImage({
-    if (input$type == "American") {
-      list(
-        src = "../images/american-roulette.png",
-        width = 500,
-        height = 256,
-        contentType = "image/png",
-        alt = "Miza"
-      )
-    }
-    
-    else {
-      list(
-        src = "../images/european-roulette.png",
-        width = 500,
-        height = 256,
-        contentType = "image/png",
-        alt = "Miza"
-      )
-    }
-  }, deleteFile = FALSE)
+  
   
   output$bets <- renderTable(stave$table)
   
