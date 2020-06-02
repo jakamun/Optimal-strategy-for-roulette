@@ -38,7 +38,7 @@ shinyUI(navbarPage(theme = shinytheme("united"),
           conditionalPanel(condition = "input.apply == '' ", 
                            fluidRow(column(width=12, align = 'center', inline=TRUE, 
                                            div(style = "height:20px;font-size: 35px;font-weight:bold;",
-                                               "Please select starting parameters!")))),
+                                               "Please select what kind of roulete do you want to play.")))),
           conditionalPanel(condition = "input.apply != '' ",
                            wellPanel(fluidRow(h3("Select on what kind of a number combinations do you wish to bet."),
                                     column(width = 12, align = "center", imageOutput("image")))),
@@ -110,13 +110,8 @@ shinyUI(navbarPage(theme = shinytheme("united"),
           conditionalPanel(condition = "input.apply == '' ", 
                            fluidRow(column(width=12, align = 'center', inline=TRUE, 
                                            div(style = "height:20px;font-size: 35px;font-weight:bold;",
-                                              "Please select starting parameters!")))),
+                                              "Please select what kind of roulete do you want to play.")))),
           conditionalPanel(condition = "input.apply != '' ", 
-                           conditionalPanel(condition = "input.set == '' ",
-                                            fluidRow(column(width=12, align = 'center', inline=TRUE, 
-                                                            div(style = "height:20px;font-size: 35px;font-weight:bold;",
-                                                                "Before you start playing please select number combinations on which you wish to bet.")))),
-                           conditionalPanel(condition = "input.set != '' ",
                                            sidebarLayout(
                                              sidebarPanel(
                                                textOutput("status", inline = TRUE),
@@ -138,15 +133,21 @@ shinyUI(navbarPage(theme = shinytheme("united"),
                                                textOutput("num")
                                              )
                                            )
-                          ))
+                          )
           ),
  
  tabPanel(title = "Simulate",
           conditionalPanel(condition = "input.apply == '' ", 
                            fluidRow(column(width=12, align = 'center', inline=TRUE, 
                                            div(style = "height:20px;font-size: 35px;font-weight:bold;",
-                                               "Please select starting parameters!")))))
+                                               "Please select what kind of roulete do you want to play.")))),
+          conditionalPanel(condition = "input.apply != '' && input.calcStrategy == '' ",
+                           fluidRow(column(width=12, align = 'center', inline=TRUE, 
+                                           div(style = "height:20px;font-size: 35px;font-weight:bold;",
+                                               "First you have to set a strategy and then you can simulate it.")))
+                           )
+          )
 
-  
-  )
 )
+)
+

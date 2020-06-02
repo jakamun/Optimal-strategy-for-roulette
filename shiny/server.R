@@ -4,14 +4,9 @@ shinyServer(function(input, output, session) {
   
   
   # REACTIVE VALUES
-  money <- reactiveValues(amount = 0, cur = NULL) # hisa da zacetnih 10 enot denarja, vseno ali zberemo euro ali dolar
+  money <- reactiveValues(amount = 0, cur = NULL)
   
   report <- reactiveValues(money = "", start = "", calc = "", calcError = "")
-  
-  ######## KAJ S TEM
-  stave <- reactiveValues(table = data.frame(segment = character(), onWhat = character(), 
-                                             amount = numeric(), return = integer(), stringsAsFactors=FALSE))
-  #############
   
   miza <- reactiveValues(miza = NULL, type = NULL, knownProb = NULL)
   
@@ -22,7 +17,11 @@ shinyServer(function(input, output, session) {
   
   click <- reactiveValues(clicked_f = 1, comb = "", error = "")
   
-  # rest of the code: output, observe Event .... 
+  stave <- reactiveValues(table = data.frame(segment = character(), onWhat = character(), 
+                                             amount = numeric(), return = integer(), stringsAsFactors=FALSE))
+  
+  
+  # code for first two tabs: setings tab and number combinations tab 
   observeEvent(input$apply, {
     if(money$amount == 0) {
       report$start <- paste("You have successfully set the settings!", 
@@ -64,6 +63,7 @@ shinyServer(function(input, output, session) {
     click$comb <- ""
     report$calc <- ""
     report$calcError <- ""
+    stave$table <- NULL
   })
   
   output$knownProbNote <- renderText({if (miza$knownProb == 'No') {
@@ -123,17 +123,17 @@ shinyServer(function(input, output, session) {
   
   label <- reactive({
     switch(input$betOn,
-           "Number" = "Choose numbers", 
-           "Color" = "Choose color",
-           "Odd or even" = "Choose odd/even",
-           "Low or high" = "Choose low/high",
-           "Dozen" = "Choose combinations of 12 numbers",
-           "Row" = "Choose rows",
-           "6 number combination" = "Choose combinations of 6 numbers",
-           "5 number combination" = "Choose combinations of 5 numbers",
-           "4 number combination" = "Choose combinations of 4 numbers",
-           "3 number combination" = "Choose combinations of 3 numbers",
-           "2 number combination" = "Choose combinations of 2 numbers"
+           "Number" = HTML(sprintf("Payoff for betting on numbers is %.0f:1, <br/> Choose numbers:", multiplier_ame[[input$betOn]])), 
+           "Color" = HTML(sprintf("Payoff for betting on color is %.0f:1, <br/> Choose color:", multiplier_ame[[input$betOn]])),
+           "Odd or even" = HTML(sprintf("Payoff for betting on odd/even is %.0f:1, <br/> Choose odd/even:", multiplier_ame[[input$betOn]])),
+           "Low or high" = HTML(sprintf("Payoff for betting on low/high is %.0f:1, <br/> Choose low/high:", multiplier_ame[[input$betOn]])),
+           "Dozen" = HTML(sprintf("Payoff for betting on combinations of 12 numbers is %.0f:1, <br/> Choose combinations of 12 numbers:", multiplier_ame[[input$betOn]])),
+           "Row" = HTML(sprintf("Payoff for betting on rows is %.0f:1, <br/> Choose rows:", multiplier_ame[[input$betOn]])),
+           "6 number combination" = HTML(sprintf("Payoff for betting on combinations of 6 numbers is %.0f:1, <br/> Choose combinations of 6 numbers:", multiplier_ame[[input$betOn]])),
+           "5 number combination" = HTML(sprintf("Payoff for betting on combinations of 5 numbers is %.0f:1, <br/> Choose combinations of 5 numbers:", multiplier_ame[[input$betOn]])),
+           "4 number combination" = HTML(sprintf("Payoff for betting on combinations of 4 numbers is %.0f:1, <br/> Choose combinations of 4 numbers:", multiplier_ame[[input$betOn]])),
+           "3 number combination" = HTML(sprintf("Payoff for betting on combinations of 3 numbers is %.0f:1, <br/> Choose combinations of 3 numbers:", multiplier_ame[[input$betOn]])),
+           "2 number combination" = HTML(sprintf("Payoff for betting on combinations of 2 numbers is %.0f:1, <br/> Choose combinations of 2 numbers:", multiplier_ame[[input$betOn]]))
            )
   })
  
@@ -379,23 +379,64 @@ shinyServer(function(input, output, session) {
   
   output$calcError <- renderText({report$calcError})
   
-  
-  
-  
-  
-  
-  #####################################################################
-  ##### strategijo treba spreminjat glede na kaj si izbereš
-  ##################################################
-  ##### oz., da kar sam pove kere segmente naj si izberem
-  #########################################################
-  miza1 <- observeEvent(input$set1, {
-    miza$miza <- reindex(miza$miza$num, miza$miza$prob, ret())
-    gama_r <- gama_0(miza$miza)
-    miza$miza$strategy <- gamas(miza$miza, gama_r[1], gama_r[2])
-    miza$miza$ord <- NULL
-    output$strategy <- renderTable(miza$miza)
+  ###################
+  # igra roulete, drugi zavihek
+  output$betOn2 <- renderUI({
+    if (miza$type == "American"){
+      selectInput("betOn", "I'm going to bet on:", choices = names(multiplier_ame), selected = "Number")
+    }
+    else {
+      selectInput("betOn", "I'm going to bet on:", choices = names(multiplier_eu), selected = "Number") 
+    }
   })
+  
+  label2 <- reactive({
+    switch(input$betOn2,
+           "Number" = HTML(sprintf("Payoff for betting on numbers is %.0f:1, <br/> Choose numbers:", multiplier_ame[[input$betOn2]])), 
+           "Color" = HTML(sprintf("Payoff for betting on color is %.0f:1, <br/> Choose color:", multiplier_ame[[input$betOn2]])),
+           "Odd or even" = HTML(sprintf("Payoff for betting on odd/even is %.0f:1, <br/> Choose odd/even:", multiplier_ame[[input$betOn2]])),
+           "Low or high" = HTML(sprintf("Payoff for betting on low/high is %.0f:1, <br/> Choose low/high:", multiplier_ame[[input$betOn2]])),
+           "Dozen" = HTML(sprintf("Payoff for betting on combinations of 12 numbers is %.0f:1, <br/> Choose combinations of 12 numbers:", multiplier_ame[[input$betOn2]])),
+           "Row" = HTML(sprintf("Payoff for betting on rows is %.0f:1, <br/> Choose rows:", multiplier_ame[[input$betOn2]])),
+           "6 number combination" = HTML(sprintf("Payoff for betting on combinations of 6 numbers is %.0f:1, <br/> Choose combinations of 6 numbers:", multiplier_ame[[input$betOn2]])),
+           "5 number combination" = HTML(sprintf("Payoff for betting on combinations of 5 numbers is %.0f:1, <br/> Choose combinations of 5 numbers:", multiplier_ame[[input$betOn2]])),
+           "4 number combination" = HTML(sprintf("Payoff for betting on combinations of 4 numbers is %.0f:1, <br/> Choose combinations of 4 numbers:", multiplier_ame[[input$betOn2]])),
+           "3 number combination" = HTML(sprintf("Payoff for betting on combinations of 3 numbers is %.0f:1, <br/> Choose combinations of 3 numbers:", multiplier_ame[[input$betOn2]])),
+           "2 number combination" = HTML(sprintf("Payoff for betting on combinations of 2 numbers is %.0f:1, <br/> Choose combinations of 2 numbers:", multiplier_ame[[input$betOn2]]))
+    )
+  })
+  
+  choices2 <- reactive({
+    switch(input$betOn2,
+           "Number" = if (miza$type == "American") {numbers_ame} else {numbers_eu},
+           "Color" = names(barve),
+           "Odd or even" = names(even_odd),
+           "Low or high" = names(low_high),
+           "Dozen" = names(dozen),
+           "Row" = names(row),
+           "6 number combination" = names(six_num),
+           "5 number combination" = names(five_num),
+           "4 number combination" = if (miza$type == "American") {names(four_num[-1])} else {names(four_num)},
+           "3 number combination" = if (miza$type == "American") {names(three_num_ame)} else {names(three_num_eu)},
+           "2 number combination" = if (miza$type == "American") {names(two_num_ame)} else {names(two_num_eu)})
+  })
+  
+  output$subBetOn2 <- renderUI({
+    pickerInput("subBetOn", label = label2(), 
+                choices = choices2(),
+                selected = choices2()[1],
+                options = list(`actions-box` = TRUE),
+                multiple = T)
+  })
+  
+  observeEvent(input$bet, {
+    money$amount <- money$amount - input$amount
+    stava <- list(input$segment, input$betOnWhat, input$amount, ret())
+    stave$table[nrow(stave$table) + 1, ] <- stava
+  })
+  
+  
+  
   
   
   
@@ -415,11 +456,6 @@ shinyServer(function(input, output, session) {
     multiplier(input$segment)
   })
   
-  observeEvent(input$bet, {
-    money$value <- money$value - input$amount
-    stava <- list(input$segment, input$betOnWhat, input$amount, ret())
-    stave$table[nrow(stave$table) + 1, ] <- stava
-  })
   
   observeEvent(input$clear, {
     stave$table <- stave$table[0,]
