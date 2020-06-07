@@ -27,7 +27,8 @@ shinyUI(navbarPage(theme = shinytheme("united"),
             actionButton("insert", "Insert")
           ),
           mainPanel(width = 6,
-            verbatimTextOutput("money")
+            verbatimTextOutput("money"),
+            verbatimTextOutput("insert")
           )
         ))
       ),
@@ -117,7 +118,6 @@ shinyUI(navbarPage(theme = shinytheme("united"),
                              column(width = 12, align = "center", imageOutput("image2")))),
                            wellPanel(sidebarLayout(
                              sidebarPanel(
-                               textOutput("status", inline = TRUE),
                                uiOutput("playNumComb"),
                                uiOutput("subplayNumComb"),
                                uiOutput("slider"),
@@ -136,16 +136,20 @@ shinyUI(navbarPage(theme = shinytheme("united"),
                                       tags$head(tags$style("#incorectBet{color: red;}")),
                                       verbatimTextOutput("incorectBet")
                                ),
-                               textOutput("roll"),
-                               textOutput("num")
-                             ))
-                           ),
+                               column(width = 7,
+                                      conditionalPanel(condition = "input.spin != '' ",
+                                                       tags$h4("Rolled number:")),
+                                      verbatimTextOutput("roll")),
+                               column(width = 7,
+                                      conditionalPanel(condition = "input.spin != '' ",
+                                                       tags$h4("Winnings:")),
+                                      verbatimTextOutput("win"))
+                           ))),
                            wellPanel(tabsetPanel(
                              tabPanel("Placed bets", DT::dataTableOutput("bets")),
                              tabPanel("Strategy", DT::dataTableOutput("strategy"))
                            ))
-                          )
-          ),
+          )),
  
  tabPanel(title = "Simulate",
           conditionalPanel(condition = "input.apply == '' ", 
@@ -156,6 +160,21 @@ shinyUI(navbarPage(theme = shinytheme("united"),
                            fluidRow(column(width=12, align = 'center', inline=TRUE, 
                                            div(style = "height:20px;font-size: 35px;font-weight:bold;",
                                                "First you have to set a strategy and then you can simulate it.")))
+                           ),
+          # PAZI TA POGOJ TREBA ŠE POPRAVIT
+          conditionalPanel(condition = "input.apply != '' && input.calcStrategy != '' ",
+                           wellPanel(fluidRow(
+                             h3("You can test suggested strategy here."))),
+                           wellPanel(
+                             sidebarLayout(
+                               sidebarPanel(
+                                 actionButton("test", "Simulate")
+                               ),
+                               mainPanel(
+                                 plotOutput("sim")
+                               )
+                             )
+                           )
                            )
           )
 

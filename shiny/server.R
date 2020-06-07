@@ -6,7 +6,7 @@ shinyServer(function(input, output, session) {
   # REACTIVE VALUES
   money <- reactiveValues(amount = 0, cur = NULL)
   
-  report <- reactiveValues(money = "", start = "", calc = "", calcError = "", invalidBet = "")
+  report <- reactiveValues(money = "", insert = "", start = "", calc = "", calcError = "", invalidBet = "")
   
   miza <- reactiveValues(miza = NULL, type = NULL, knownProb = NULL)
   
@@ -54,7 +54,6 @@ shinyServer(function(input, output, session) {
     miza$type <- input$type
     miza$miza <- unfair_roulete(checktype(input$type))
     miza$knownProb <- input$knownProb
-    print(rouletteSim(miza$miza, miza$type))
     num_combinations$chosenCombinations <- NULL
     num_combinations$calcStrategy <- NULL
     num_combinations$missing_num <- miza$miza$num
@@ -79,8 +78,8 @@ shinyServer(function(input, output, session) {
   observeEvent(input$insert, {money$amount <- money$amount + convert(input$curren, money$cur, as.numeric(input$value))})
   
   observeEvent(input$insert, {
-    report$money <- paste(paste0("You inserted ", input$value, cur_sym(input$curren), "."),
-                       paste0("Now you have ", sprintf("%.2f", money$amount), cur_sym(money$cur), "."), sep="\n")
+    report$insert <- paste0("You inserted ", input$value, cur_sym(input$curren), ".")
+    report$money <- paste0("You have ", sprintf("%.2f", money$amount), cur_sym(money$cur), ".")
   })
   
   
@@ -88,6 +87,7 @@ shinyServer(function(input, output, session) {
   
   output$money <- renderText({report$money})
 
+  output$insert <- renderText({report$insert})
   
   output$betOn <- renderUI({
     if (miza$type == "American"){
@@ -440,22 +440,27 @@ shinyServer(function(input, output, session) {
     slika()
   }, deleteFile = FALSE)
   
-  
-  observeEvent(input$bet, {
-    if (input$amount > 0) {
-      report$incorectBet <- ""
-      money$amount <- money$amount - input$amount
-      multiplier <- if (miza$type == "American") {multiplier_ame[[input$playNumComb]]} else {multiplier_eu[[input$playNumComb]]}
-      stava <- data.frame(num_comb_type = input$playNumComb, num_comb = input$subPlayComb, bet_amount = input$amount, multiplier = multiplier)
-      stave$table <- rbind(stave$table, stava)
-    }
-  })
-  
   observeEvent(input$bet, {
     if (input$amount == 0) {
       report$incorectBet <- paste("You tried to place bet with 0 value.")
     }
+    else if (input$amount * length(input$subPlayComb) > money$amount) {
+      report$incorectBet <- paste("You tried to bet more money than you have.")
+    }
   })
+  
+  
+  observeEvent(input$bet, {
+    if (input$amount > 0 && input$amount * length(input$subPlayComb) <= money$amount) {
+      report$incorectBet <- ""
+      money$amount <- money$amount - (input$amount * length(input$subPlayComb))
+      multiplier <- if (miza$type == "American") {multiplier_ame[[input$playNumComb]]} else {multiplier_eu[[input$playNumComb]]}
+      stava <- data.frame(num_comb_type = input$playNumComb, num_comb = input$subPlayComb, bet_amount = input$amount, multiplier = multiplier)
+      stave$table <- rbind(stave$table, stava)
+      report$money <- paste0("You have ", sprintf("%.2f", money$amount), cur_sym(money$cur), ".")
+    }
+  })
+  
   
   output$money2 <- renderText(report$money)
   
@@ -465,39 +470,49 @@ shinyServer(function(input, output, session) {
   
   output$strategy <- DT::renderDataTable({num_combinations$calcStrategy})
   
-  observeEvent(input$clear, {
-    stave$table <- stave$table[0,]
+  observeEvent(input$clearAll, {
+    betedMoney <- sum(stave$table$bet_amount)
+    money$amount <- money$amount + betedMoney
+    report$money <- paste0("You have ", sprintf("%.2f", money$amount), cur_sym(money$cur), ".")
+    report$incorectBet <- ""
+    stave$table <- NULL
   })
   
-  output$status <- renderText({sprintf("You have %.0f dollars", money$amount)})
+  observeEvent(input$clearSelect, {
+    delete <- stave$table$num_comb %in% input$subPlayComb
+    betedMoney <- sum(stave$table$bet_amount[delete])
+    money$amount <- money$amount + betedMoney
+    report$money <- paste0("You have ", sprintf("%.2f", money$amount), cur_sym(money$cur), ".")
+    stave$table <- stave$table[!delete,]
+  })
   
-  output$noSetup <- renderText("Please set the parameters!")
-  
-  
-  dobitek <- function(bets, rol_col, rol_num, even) {
-    skupaj <- paste(rol_num, rol_col)
-    match <- stave$table[stave$table$onWhat == skupaj | stave$table$onWhat == rol_col | stave$table$onWhat == even,]
-    if (length(match) != 0) {
-      return(sum(match$amount * (match$return + 1)))
-    }
-    else {
-      return(0)
-    }
-  }
-  
+  observeEvent(input$clearComb, {
+    delete <- input$subBetOn
+    num_combinations$chosenCombinations <- num_combinations$chosenCombinations[!(num_combinations$chosenCombinations$num_comb %in% delete),]
+    num_combinations$missing_num <- c(num_combinations$missing_num, delete)
+    num_combinations$calcStrategy <- NULL
+    report$calc <- ""
+    report$calcError <- ""
+    click$clicked_f <- 1
+    click$error <- ""
+    click$comb <- ""
+  })
   
   observeEvent(input$spin, {
-    rand <- sample(1:nrow(miza$miza), 1, prob = miza$miza$prob)
-    st <- miza$miza[rand,]
-    miza$number <- st$num
-    miza$color <- st$color
-    miza$oddEven <- odd_even(paste(st$num))
+    rolled <- rouletteSim(miza$miza, miza$type)
+    winning <- dobitek(stave$table, rolled)
+    money$amount <- money$amount + winning
+    betedMoney <- sum(stave$table$bet_amount)
+    output$roll <- renderText(rolled[1])
+    output$win <- renderText({
+      paste(paste0("You betted ", betedMoney, cur_sym(money$cur), "."),
+            paste0("You won ", winning, cur_sym(money$cur), "."), sep = "\n")
+  })
+    stave$table <- NULL
+    report$money <- paste0("You have ", sprintf("%.2f", money$amount), cur_sym(money$cur), ".")
   })
   
-  output$roll <- eventReactive(input$spin, paste(miza$color, miza$number))
   
-  output$num <- eventReactive(input$spin, 
-                              paste(dobitek(stave(), miza$color, miza$number, miza$oddEven)))
   
   
   
