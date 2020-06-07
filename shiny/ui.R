@@ -33,14 +33,15 @@ shinyUI(navbarPage(theme = shinytheme("united"),
       ),
   
  tabPanel("Number combinations",
-          tags$head(tags$style(HTML("h3 { font-style: italic;font-weight:bold;};
+          tags$head(tags$style(HTML("h3 { font-style: italic;font-weight:bold;text-align: center};
                                      h4 { font-style: italic;font-weight:bold;}"))),
           conditionalPanel(condition = "input.apply == '' ", 
                            fluidRow(column(width=12, align = 'center', inline=TRUE, 
                                            div(style = "height:20px;font-size: 35px;font-weight:bold;",
                                                "Please select what kind of roulete do you want to play.")))),
           conditionalPanel(condition = "input.apply != '' ",
-                           wellPanel(fluidRow(h3("Select on what kind of a number combinations do you wish to bet."),
+                           wellPanel(fluidRow(
+                                    h3("Select on what kind of a number combinations do you wish to bet."),
                                     column(width = 12, align = "center", imageOutput("image")))),
                            wellPanel(fluidRow(
                              column(width=12,
@@ -92,7 +93,6 @@ shinyUI(navbarPage(theme = shinytheme("united"),
                                                        )
                                     ))),
                            wellPanel(tabsetPanel(
-                                     #     conditionalPanel(condition = "")
                                      tabPanel("Probabilities", 
                                               DT::dataTableOutput("probabilities"),
                                               tags$head(tags$style("#knownProbNote{font-size: 15px;}")),
@@ -112,27 +112,38 @@ shinyUI(navbarPage(theme = shinytheme("united"),
                                            div(style = "height:20px;font-size: 35px;font-weight:bold;",
                                               "Please select what kind of roulete do you want to play.")))),
           conditionalPanel(condition = "input.apply != '' ", 
-                                           sidebarLayout(
-                                             sidebarPanel(
-                                               textOutput("status", inline = TRUE),
-                                               selectInput("segment", "On what will you bet?", choices = names(multiplier_ame)),
-                                               uiOutput("buttons"),
-                                               uiOutput("slider"),
-                                               actionButton("clear", "Clear all bets"),
-                                               actionButton("bet", "Place bet"),
-                                               actionButton("spin", "Spin the wheel")
-                                             ),
-                                             mainPanel(
-                                               column(6, tableOutput("bets")),
-                                               column(6, tableOutput("strategy"))
-                                             )
-                                           ),
-                                           verticalLayout(
-                                             wellPanel(
-                                               textOutput("roll"),
-                                               textOutput("num")
-                                             )
-                                           )
+                           wellPanel(fluidRow(
+                             h3("You can play roulette here."),
+                             column(width = 12, align = "center", imageOutput("image2")))),
+                           wellPanel(sidebarLayout(
+                             sidebarPanel(
+                               textOutput("status", inline = TRUE),
+                               uiOutput("playNumComb"),
+                               uiOutput("subplayNumComb"),
+                               uiOutput("slider"),
+                               actionButton("clearSelect", "Clear selected bets"),
+                               actionButton("clearAll", "Clear all bets"),
+                               actionButton("bet", "Place bet"),
+                               actionButton("spin", "Spin the wheel")
+                             ),
+                             mainPanel(
+                               column(width = 7,
+                                      h4("Money amount:"),
+                                      verbatimTextOutput("money2")),
+                               column(width = 7,
+                                      conditionalPanel(condition = "output.incorectBet != '' ",
+                                                       tags$h4("Warning:")),
+                                      tags$head(tags$style("#incorectBet{color: red;}")),
+                                      verbatimTextOutput("incorectBet")
+                               ),
+                               textOutput("roll"),
+                               textOutput("num")
+                             ))
+                           ),
+                           wellPanel(tabsetPanel(
+                             tabPanel("Placed bets", DT::dataTableOutput("bets")),
+                             tabPanel("Strategy", DT::dataTableOutput("strategy"))
+                           ))
                           )
           ),
  

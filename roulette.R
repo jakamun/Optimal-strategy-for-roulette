@@ -20,5 +20,7 @@ source("pomozno/vseStave.R")
 
 source("pomozno/currency.R")
 
+source("pomozno/simRoulette.R")
+
 # shiny app
 runApp(appDir = "shiny/")
