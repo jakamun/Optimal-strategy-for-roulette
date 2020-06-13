@@ -468,7 +468,11 @@ shinyServer(function(input, output, session) {
   
   output$bets <- DT::renderDataTable(stave$table)
   
-  output$strategy <- DT::renderDataTable({num_combinations$calcStrategy})
+  output$strategy <- DT::renderDataTable({
+    strategija <- num_combinations$calcStrategy
+    strategija$bet <- round(strategija$money_share_bet * money$amount, 2)
+    strategija
+  })
   
   observeEvent(input$clearAll, {
     betedMoney <- sum(stave$table$bet_amount)

@@ -42,7 +42,7 @@ strategy <- function(miza) {
   gama_r <- gama_0(table)
   gamas <- gamas(table, gama_r[1], gama_r[2])
   table$ord <- NULL
-  table$strategy <- gamas
+  table$money_share_bet <- gamas
   return(table)
 }
 
