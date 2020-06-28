@@ -35,48 +35,46 @@ dobitek <- function(bets, kombinacije) {
 
 
 simulacija <- function(miza, knownProb, money, iter) {
-  fallen <- rep("", iter)
   money_move <- rep(0, iter+1)
   money_move[1] <- money
   if (knownProb == "Yes") {
     for (i in 2:(iter + 1)) {
       rand <- sample(1:nrow(miza), 1, prob = miza$prob)
-      fallen[i] <- miza[rand,]$num_comb
       win <- miza[rand,]$bet * (miza[rand,]$multiplier + 1)
       money <- money - sum(miza$bet) + win
       money_move[i] <- money
+      miza[rand,'fallen'] <- miza[rand,'fallen'] + 1
       if (money <= 0) {
-        return(list(fallen, money_move, miza))
+        return(list(money_move, miza))
       }
       else if (money == Inf) {
-        return(list(fallen[1:(i-1)], money_move[1:(i-1)], miza))
+        return(list(money_move[1:(i-1)], miza))
       }
       else {
         miza$bet <- round(miza$bet_share * money, 2)
       }
     }
-    return(list(fallen, money_move, miza))
+    return(list(money_move, miza))
   }
   else {
     for (i in 2:(iter + 1)) {
       rand <- sample(1:nrow(miza), 1, prob = miza$prob1)
-      fallen[i] <- miza[rand,]$num_comb
       win <- miza[rand,]$bet * (miza[rand,]$multiplier + 1)
       money <- money - sum(miza$bet) + win
       money_move[i] <- money
+      miza[rand,'fallen'] <- miza[rand,'fallen'] + 1
       if (money <= 0) {
-        return(list(fallen, money_move, miza))
+        return(list(money_move, miza))
       }
       else if (money == Inf) {
-        return(list(fallen[1:(i-1)], money_move[1:(i-1)], miza))
+        return(list(money_move[1:(i-1)], miza))
       }
       else {
-        miza[rand,'fallen'] <- miza[rand,'fallen'] + 1
         miza <- strategy(adaptStrategy(miza) %>% rename(prob = pred_prob)) %>% rename(pred_prob = prob)
         miza$bet <- round(miza$bet_share * money, 2)
       }
     }
-    return(list(fallen, money_move, miza))
+    return(list(money_move, miza))
   }
 }
 

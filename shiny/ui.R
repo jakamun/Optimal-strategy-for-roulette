@@ -164,7 +164,7 @@ shinyUI(navbarPage(theme = shinytheme("united"),
           # PAZI TA POGOJ TREBA ŠE POPRAVIT
           conditionalPanel(condition = "input.apply != '' && input.calcStrategy != '' ",
                            wellPanel(fluidRow(
-                             h3("You can test strategy here."))),
+                             h3("Here you can test strategy."))),
                            wellPanel(
                              sidebarLayout(
                                sidebarPanel(

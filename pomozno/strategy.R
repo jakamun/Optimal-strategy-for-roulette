@@ -41,8 +41,8 @@ strategy <- function(miza) {
   table <- reindex(miza)
   gama_r <- gama_0(table)
   gamas <- gamas(table, gama_r[1], gama_r[2])
-  table$ord <- NULL
   table$bet_share <- gamas
+  table$ord <- NULL
   return(table)
 }
 
