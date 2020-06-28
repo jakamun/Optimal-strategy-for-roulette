@@ -56,6 +56,7 @@ shinyServer(function(input, output, session) {
     miza$knownProb <- input$knownProb
     num_combinations$chosenCombinations <- NULL
     num_combinations$calcStrategy <- NULL
+    num_combinations$fallen <- NULL
     num_combinations$missing_num <- miza$miza$num
     click$clicked_f <- 1
     click$error <- ""
@@ -75,7 +76,15 @@ shinyServer(function(input, output, session) {
   })
   
   
-  observeEvent(input$insert, {money$amount <- money$amount + convert(input$curren, money$cur, as.numeric(input$value))})
+  observeEvent(input$insert, {
+    if (is.null(num_combinations$calcStrategy)) {
+      money$amount <- money$amount + convert(input$curren, money$cur, as.numeric(input$value))
+    }
+    else {
+      money$amount <- money$amount + convert(input$curren, money$cur, as.numeric(input$value))
+      num_combinations$calcStrategy$bet <- round(num_combinations$calcStrategy$bet_share * money$amount, 2)
+    }
+  })
   
   observeEvent(input$insert, {
     report$insert <- paste0("You inserted ", input$value, cur_sym(input$curren), ".")
@@ -345,14 +354,21 @@ shinyServer(function(input, output, session) {
   observeEvent(input$calcStrategy, {
     if (miza$knownProb == "Yes" && length(num_combinations$missing_num) == 0) {
       num_combinations$calcStrategy <- strategy(num_combinations$chosenCombinations)
-      output$strategy1 <- DT::renderDataTable({num_combinations$calcStrategy})
+      num_combinations$calcStrategy$fallen <- rep(0,nrow(num_combinations$calcStrategy))
+      num_combinations$calcStrategy <- num_combinations$calcStrategy %>% select(num_comb_type, num_comb, multiplier, fallen, prob, bet_share)
+      num_combinations$calcStrategy$bet <- round(num_combinations$calcStrategy$bet_share * money$amount, 2)
     }
     else if (miza$knownProb == "No" && length(num_combinations$missing_num) == 0) {
       preCalcTable <- num_combinations$chosenCombinations %>% select(num_comb_type, num_comb, multiplier, prob = pred_prob)
       num_combinations$calcStrategy <- strategy(preCalcTable) %>% rename(pred_prob = prob)
-      output$strategy1 <- DT::renderDataTable({num_combinations$calcStrategy})
+      num_combinations$calcStrategy$fallen <- rep(0,nrow(num_combinations$calcStrategy))
+      num_combinations$calcStrategy <- merge(num_combinations$calcStrategy, num_combinations$chosenCombinations %>% select(num_comb, alfa))
+      num_combinations$calcStrategy <- num_combinations$calcStrategy %>% select(num_comb_type, num_comb, multiplier, fallen, alfa, pred_prob, bet_share)
+      num_combinations$calcStrategy$bet <- round(num_combinations$calcStrategy$bet_share * money$amount, 2)
     }
   })
+  
+  output$strategy1 <- DT::renderDataTable({num_combinations$calcStrategy})
   
   observeEvent(input$calcStrategy, {
     if (length(num_combinations$missing_num) == 0 && miza$knownProb == "No") { 
@@ -382,7 +398,7 @@ shinyServer(function(input, output, session) {
   
   output$calcError <- renderText({report$calcError})
   
-  ###################
+  ###############################################################
   # igra roulete, drugi zavihek
   output$playNumComb <- renderUI({
     if (miza$type == "American"){
@@ -468,11 +484,7 @@ shinyServer(function(input, output, session) {
   
   output$bets <- DT::renderDataTable(stave$table)
   
-  output$strategy <- DT::renderDataTable({
-    strategija <- num_combinations$calcStrategy
-    strategija$bet <- round(strategija$money_share_bet * money$amount, 2)
-    strategija
-  })
+  output$strategy <- DT::renderDataTable({num_combinations$calcStrategy})
   
   observeEvent(input$clearAll, {
     betedMoney <- sum(stave$table$bet_amount)
@@ -502,7 +514,7 @@ shinyServer(function(input, output, session) {
     click$comb <- ""
   })
   
-  observeEvent(input$spin, {
+  observeEvent(input$spin, { 
     rolled <- rouletteSim(miza$miza, miza$type)
     winning <- dobitek(stave$table, rolled)
     money$amount <- money$amount + winning
@@ -513,11 +525,38 @@ shinyServer(function(input, output, session) {
             paste0("You won ", winning, cur_sym(money$cur), "."), sep = "\n")
   })
     stave$table <- NULL
+    if (!is.null(num_combinations$calcStrategy)) {
+      choComb <- num_combinations$calcStrategy$num_comb
+      whichComb <- choComb %in% rolled
+      num_combinations$calcStrategy[whichComb,'fallen'] <- num_combinations$calcStrategy[whichComb,'fallen'] + 1
+      num_combinations$calcStrategy <- if (miza$knownProb == "No") {strategy(adaptStrategy(num_combinations$calcStrategy) %>% rename(prob = pred_prob)) %>% rename(pred_prob = prob)} else {num_combinations$calcStrategy}
+      num_combinations$calcStrategy$bet <- round(num_combinations$calcStrategy$bet_share * money$amount, 2)
+    }
     report$money <- paste0("You have ", sprintf("%.2f", money$amount), cur_sym(money$cur), ".")
   })
   
-  
-  
+  ######################################################################
+  # simulacija strategije, tretji zavihek
+  observeEvent(input$test, {
+    if (miza$knownProb == "Yes") {
+      rez <- simulacija(num_combinations$calcStrategy, "Yes", money$amount, as.integer(input$iter))
+      output$sim <- renderPlot({plot(rez[[2]])})
+      output$histo <- renderPlot({barplot(prop.table(table(rez[[1]])))})
+      output$endStra <- DT::renderDataTable({rez[[3]]})
+      output$repSim <- if (length(rez[[2]]) == (as.integer(input$iter) + 1)) {paste(paste0("Starting capital: ", rez[[2]][1], cur_sym(money$cur), "."), 
+                                                                  paste0("End capital: ", rez[[2]][as.integer(input$iter)], cur_sym(money$cur), "."), 
+                                                                  paste0("Number of iterations: ", input$iter, "."), sep = "\n")}
+      output$repSim <- renderText({reportSim(as.integer(input$iter), rez[[2]], money$cur)})
+    }
+    else {
+      tabela <- merge(num_combinations$calcStrategy, num_combinations$chosenCombinations %>% select(num_comb, prob1 = prob))
+      rez <- simulacija(tabela, "No", money$amount, as.integer(input$iter))
+      output$sim <- renderPlot({plot(rez[[2]])})
+      output$histo <- renderPlot({barplot(prop.table(table(rez[[1]])))})
+      output$endStra <- DT::renderDataTable({rez[[3]]})
+      output$repSim <- renderText({reportSim(as.integer(input$iter), rez[[2]], money$cur)})
+    }
+  })
   
   
   

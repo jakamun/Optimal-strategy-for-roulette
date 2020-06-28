@@ -1,11 +1,11 @@
 library(shiny)
 library(shinythemes)
-#library(lubridate)
 library(prob)
 library(dplyr)
 library(png)
 library(shinyWidgets)
 library(DT)
+library(ggplot2)
 
 # set working directory
 current_working_dir = dirname(rstudioapi::getActiveDocumentContext()$path)

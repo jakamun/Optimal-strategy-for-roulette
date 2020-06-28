@@ -164,15 +164,23 @@ shinyUI(navbarPage(theme = shinytheme("united"),
           # PAZI TA POGOJ TREBA ŠE POPRAVIT
           conditionalPanel(condition = "input.apply != '' && input.calcStrategy != '' ",
                            wellPanel(fluidRow(
-                             h3("You can test suggested strategy here."))),
+                             h3("You can test strategy here."))),
                            wellPanel(
                              sidebarLayout(
                                sidebarPanel(
+                                 textInput("iter", "Choose number of iterations:", value = "1000"),
                                  actionButton("test", "Simulate")
                                ),
                                mainPanel(
-                                 plotOutput("sim")
+                                 verbatimTextOutput("repSim")
                                )
+                             )
+                           ),
+                           wellPanel(
+                             tabsetPanel(
+                               tabPanel("Money movement", plotOutput("sim")),
+                               tabPanel("Histogram", plotOutput("histo")),
+                               tabPanel("End strategy", DT::dataTableOutput("endStra"))
                              )
                            )
                            )

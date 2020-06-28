@@ -42,13 +42,17 @@ strategy <- function(miza) {
   gama_r <- gama_0(table)
   gamas <- gamas(table, gama_r[1], gama_r[2])
   table$ord <- NULL
-  table$money_share_bet <- gamas
+  table$bet_share <- gamas
   return(table)
 }
 
 ##########################
 # za nepoznane verjetnosti je potrebno na vsakem koraku še izračunati verjetnosti, ostalo je nespremenjeno
 
-pred_prob <- function(table, history) {
-  1
+adaptStrategy <- function(strategy) {
+  sum_alfa <- sum(as.numeric(strategy$alfa))
+  n <- sum(strategy$fallen)
+  strategy$pred_prob <- (as.numeric(strategy$alfa) + strategy$fallen) / (sum_alfa + n - 1)
+  strategy
 }
+
